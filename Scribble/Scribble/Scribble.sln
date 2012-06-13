@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scribble", "Scribble\Scribble.vcproj", "{DAC312F3-FF6F-428F-8D41-A60CD0252189}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAC312F3-FF6F-428F-8D41-A60CD0252189}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DAC312F3-FF6F-428F-8D41-A60CD0252189}.Debug|Win32.Build.0 = Debug|Win32
+		{DAC312F3-FF6F-428F-8D41-A60CD0252189}.Release|Win32.ActiveCfg = Release|Win32
+		{DAC312F3-FF6F-428F-8D41-A60CD0252189}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
