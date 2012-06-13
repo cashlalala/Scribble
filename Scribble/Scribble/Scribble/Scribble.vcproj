@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CStroke.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
@@ -233,6 +237,10 @@
 			>
 			<File
 				RelativePath=".\ChildFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CStroke.h"
 				>
 			</File>
 			<File
@@ -300,5 +308,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="Scribble.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

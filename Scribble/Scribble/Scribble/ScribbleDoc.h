@@ -3,6 +3,8 @@
 
 
 #pragma once
+#include "afxwin.h"
+#include "CStroke.h"
 
 
 class CScribbleDoc : public CDocument
@@ -13,9 +15,13 @@ protected: // 僅從序列化建立
 
 // 屬性
 public:
+	CTypedPtrList<CObList, CStroke*> m_strokeList;
+	CPen m_penCur;
+	UINT m_nPenWidth;
 
 // 作業
 public:
+	CPen*   GetCurrentPen();
 
 // 覆寫
 public:
@@ -35,6 +41,11 @@ protected:
 // 產生的訊息對應函式
 protected:
 	DECLARE_MESSAGE_MAP()
+	void InitDocument(void);
+public:
+	CStroke* NewStroke(void);
+	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual void DeleteContents();
 };
 
 

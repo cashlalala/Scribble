@@ -24,6 +24,7 @@ END_MESSAGE_MAP()
 // CScribbleDoc 建構/解構
 
 CScribbleDoc::CScribbleDoc()
+: m_nPenWidth(0)
 {
 	// TODO: 在此加入一次建構程式碼
 
@@ -38,14 +39,33 @@ BOOL CScribbleDoc::OnNewDocument()
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 
-	// TODO: 在此加入重新初始化程式碼
-	// (SDI 文件會重用此文件)
-
+	InitDocument();
 	return TRUE;
 }
 
 
 
+
+BOOL CScribbleDoc::OnOpenDocument(LPCTSTR lpszPathName)
+{
+	if (!CDocument::OnOpenDocument(lpszPathName))
+		return FALSE;
+
+	InitDocument();
+	return TRUE;
+}
+
+// Called on File/Close
+
+void CScribbleDoc::DeleteContents()
+{
+	while( !m_strokeList.IsEmpty( ) )
+	{
+		delete m_strokeList.RemoveHead( );
+	}
+
+	CDocument::DeleteContents();
+}
 
 // CScribbleDoc 序列化
 
@@ -59,6 +79,13 @@ void CScribbleDoc::Serialize(CArchive& ar)
 	{
 		// TODO: 在此加入載入程式碼
 	}
+	m_strokeList.Serialize( ar );
+}
+
+
+CPen* CScribbleDoc::GetCurrentPen()
+{
+	return &m_penCur;
 }
 
 
@@ -74,7 +101,25 @@ void CScribbleDoc::Dump(CDumpContext& dc) const
 {
 	CDocument::Dump(dc);
 }
+
+
 #endif //_DEBUG
 
 
 // CScribbleDoc 命令
+
+void CScribbleDoc::InitDocument(void)
+{
+	m_nPenWidth = 2;  // Default 2-pixel pen width
+	// Solid black pen
+	m_penCur.CreatePen( PS_SOLID, m_nPenWidth, RGB(0,0,0) );
+}
+
+CStroke* CScribbleDoc::NewStroke(void)
+{
+	CStroke* pStrokeItem = new CStroke(m_nPenWidth);
+	m_strokeList.AddTail( pStrokeItem );
+	SetModifiedFlag( );    // Mark document as modified
+	// to confirm File Close.
+	return pStrokeItem;
+}

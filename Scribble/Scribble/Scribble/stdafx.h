@@ -33,8 +33,9 @@
 #ifndef _AFX_NO_AFXCMN_SUPPORT
 #include <afxcmn.h>                     // MFC 支援的 Windows 通用控制項
 #endif // _AFX_NO_AFXCMN_SUPPORT
+#include <afx.h>
 
-
+//#include <afxtempl.h>    // MFC templates
 
 
 
