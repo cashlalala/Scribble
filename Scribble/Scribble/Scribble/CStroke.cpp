@@ -7,8 +7,7 @@
 
 
 // CStroke
-
-IMPLEMENT_DYNAMIC(CStroke, CWnd)
+IMPLEMENT_SERIAL(CStroke,CObject,1)
 
 CStroke::CStroke()
 : m_nPenWidth(0)
@@ -32,6 +31,7 @@ END_MESSAGE_MAP()
 
 CStroke::CStroke(UINT nPenWidth)
 {
+	m_nPenWidth = nPenWidth;
 }
 
 // operations

@@ -6,7 +6,7 @@
 
 class CStroke : public CWnd
 {
-	DECLARE_DYNAMIC(CStroke)
+	DECLARE_SERIAL(CStroke)
 
 public:
 	CStroke(UINT nPenWidth);
