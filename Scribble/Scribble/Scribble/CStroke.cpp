@@ -37,7 +37,17 @@ CStroke::CStroke(UINT nPenWidth)
 // operations
 BOOL CStroke::DrawStroke( CDC* pDC )
 {
-	return false;
+	CPen penStroke;
+	if( !penStroke.CreatePen(PS_SOLID, m_nPenWidth, RGB(0,0,0)))
+		return FALSE;
+	CPen* pOldPen = pDC->SelectObject( &penStroke );
+	pDC->MoveTo( m_pointArray[0] );
+	for( int i=1; i < m_pointArray.GetSize(); i++ )
+	{
+		pDC->LineTo( m_pointArray[i] );
+	}
+	pDC->SelectObject( pOldPen );
+	return TRUE;
 }
 
 void CStroke::Serialize(CArchive& ar)

@@ -14,6 +14,9 @@ protected: // 僅從序列化建立
 // 屬性
 public:
 	CScribbleDoc* GetDocument() const;
+protected:
+	CStroke*   m_pStrokeCur;    // The stroke in progress
+	CPoint     m_ptPrev;    // The last mouse pt in the stroke
 
 // 作業
 public:
@@ -40,6 +43,10 @@ protected:
 // 產生的訊息對應函式
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // ScribbleView.cpp 中的偵錯版本
