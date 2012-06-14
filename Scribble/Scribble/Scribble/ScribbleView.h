@@ -3,6 +3,7 @@
 
 
 #pragma once
+#include "cpenwidthsdlg.h"
 
 
 class CScribbleView : public CView
@@ -47,6 +48,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+private:
 };
 
 #ifndef _DEBUG  // ScribbleView.cpp ¤¤ªº°»¿ùª©¥»

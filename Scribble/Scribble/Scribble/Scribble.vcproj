@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CPenWidthsDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CStroke.cpp"
 				>
 			</File>
@@ -237,6 +241,10 @@
 			>
 			<File
 				RelativePath=".\ChildFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CPenWidthsDlg.h"
 				>
 			</File>
 			<File

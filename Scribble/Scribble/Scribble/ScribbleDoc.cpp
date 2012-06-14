@@ -5,6 +5,7 @@
 #include "Scribble.h"
 
 #include "ScribbleDoc.h"
+#include "CPenWidthsDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -22,6 +23,7 @@ BEGIN_MESSAGE_MAP(CScribbleDoc, CDocument)
 	ON_COMMAND(ID_PEN_THICK_OR_THIN, &CScribbleDoc::OnPenThickOrThin)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_C, &CScribbleDoc::OnUpdateEditC)
 	ON_UPDATE_COMMAND_UI(ID_PEN_THICK_OR_THIN, &CScribbleDoc::OnUpdatePenThickOrThin)
+	ON_COMMAND(ID_PEN_WIDTHS, &CScribbleDoc::OnPenWidths)
 END_MESSAGE_MAP()
 
 
@@ -168,4 +170,24 @@ void CScribbleDoc::OnUpdatePenThickOrThin(CCmdUI *pCmdUI)
 	// Add check mark to Pen Thick Line menu item if the current
 	// pen width is "thick."
 	pCmdUI->SetCheck( m_bThickPen );
+}
+
+void CScribbleDoc::OnPenWidths()
+{
+	CPenWidthsDlg dlg;
+	// Initialize dialog data
+	dlg.m_nThinWidth = m_nThinWidth;
+	dlg.m_nThickWidth = m_nThickWidth;
+
+	// Invoke the dialog box
+	if (dlg.DoModal() == IDOK)
+	{
+		// retrieve the dialog data
+		m_nThinWidth = dlg.m_nThinWidth;
+		m_nThickWidth = dlg.m_nThickWidth;
+
+		// Update the pen used by views when drawing new strokes
+		// to reflect the new pen widths for "thick" and "thin".
+		ReplacePen();
+	}
 }
