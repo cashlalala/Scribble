@@ -176,6 +176,6 @@ void CScribbleView::OnMouseMove(UINT nFlags, CPoint point)
 	dc.SelectObject( pOldPen );
 	m_ptPrev = point;
 	return;
-
+	//
 	//CView::OnMouseMove(nFlags, point);
 }
