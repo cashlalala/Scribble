@@ -173,6 +173,8 @@ BEGIN
         MENUITEM "重疊顯示(&C)",                    ID_WINDOW_CASCADE
         MENUITEM "並排顯示(&T)",                    ID_WINDOW_TILE_HORZ
         MENUITEM "排列圖示(&A)",                    ID_WINDOW_ARRANGE
+        MENUITEM SEPARATOR
+        MENUITEM "分割視窗",                        ID_WINDOW_SPLIT
     END
     POPUP "說明(&H)"
     BEGIN

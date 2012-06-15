@@ -6,7 +6,7 @@
 #include "cpenwidthsdlg.h"
 
 
-class CScribbleView : public CView
+class CScribbleView : public CScrollView 
 {
 protected: // 僅從序列化建立
 	CScribbleView();
@@ -49,6 +49,10 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 private:
+protected:
+	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
+public:
+	virtual void OnInitialUpdate();
 };
 
 #ifndef _DEBUG  // ScribbleView.cpp 中的偵錯版本

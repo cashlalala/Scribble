@@ -79,11 +79,11 @@ void CScribbleDoc::Serialize(CArchive& ar)
 {
 	if (ar.IsStoring())
 	{
-		// TODO: 在此加入儲存程式碼
+		ar << m_sizeDoc;
 	}
 	else
 	{
-		// TODO: 在此加入載入程式碼
+		ar >> m_sizeDoc;
 	}
 	m_strokeList.Serialize( ar );
 }
@@ -122,6 +122,8 @@ void CScribbleDoc::InitDocument(void)
 	m_bThickPen = FALSE;
 	m_nThinWidth = 2;     // Default thin pen is 2 pixels wide
 	m_nThickWidth = 5;    // Default thick pen is 5 pixels wide
+	// Default document size is 800 x 900 screen pixels.
+	m_sizeDoc = CSize(800,900);
 }
 
 CStroke* CScribbleDoc::NewStroke(void)

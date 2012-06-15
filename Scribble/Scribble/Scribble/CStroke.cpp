@@ -7,7 +7,7 @@
 
 
 // CStroke
-IMPLEMENT_SERIAL(CStroke,CObject,1)
+IMPLEMENT_SERIAL(CStroke,CObject,2)
 
 CStroke::CStroke()
 : m_nPenWidth(0)
@@ -32,6 +32,7 @@ END_MESSAGE_MAP()
 CStroke::CStroke(UINT nPenWidth)
 {
 	m_nPenWidth = nPenWidth;
+	m_rectBounding.SetRectEmpty();
 }
 
 // operations
@@ -54,14 +55,44 @@ void CStroke::Serialize(CArchive& ar)
 {
 	if( ar.IsStoring( ) )
 	{
+		ar << m_rectBounding;
 		ar << (WORD)m_nPenWidth;
 		m_pointArray.Serialize( ar );
 	}
 	else
 	{
+		ar >> m_rectBounding;
 		WORD w;
 		ar >> w;
 		m_nPenWidth = w;
 		m_pointArray.Serialize( ar );
 	}
+}
+
+void CStroke::FinishStroke(void)
+{
+	if( m_pointArray.GetSize() == 0 )
+	{
+		m_rectBounding.SetRectEmpty();
+		return;
+	}
+	CPoint pt = m_pointArray[0];
+	m_rectBounding = CRect( pt.x, pt.y, pt.x, pt.y );
+
+	for (int i=1; i < m_pointArray.GetSize(); i++)
+	{
+		// If the point lies outside of the accumulated bounding
+		// rectangle, then inflate the bounding rect to include it.
+		pt = m_pointArray[i];
+		m_rectBounding.left   = min(m_rectBounding.left, pt.x);
+		m_rectBounding.right  = max(m_rectBounding.right, pt.x);
+		m_rectBounding.top    = min(m_rectBounding.top, pt.y);
+		m_rectBounding.bottom = max(m_rectBounding.bottom, pt.y);
+	}
+
+	// Add the pen width to the bounding rectangle.  This is needed
+	// to account for the width of the stroke when invalidating
+	// the screen.
+	m_rectBounding.InflateRect(CSize(m_nPenWidth, m_nPenWidth));
+	return;
 }

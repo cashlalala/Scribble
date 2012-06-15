@@ -21,12 +21,21 @@ protected:
 	unsigned int m_nPenWidth;
 public:
 	CArray<CPoint,CPoint> m_pointArray;
+protected:
+	CRect m_rectBounding;  // smallest rect that surrounds all
+	// of the points in the stroke
 	
 	// operations
-	BOOL DrawStroke(CDC* pDC);
 	virtual void Serialize(CArchive& ar);
+public:
+	BOOL DrawStroke(CDC* pDC);
+
+public:
+	CRect& GetBoundingRect() { return m_rectBounding; }
 
 protected:
+public:
+	void FinishStroke(void);
 };
 
 

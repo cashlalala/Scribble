@@ -14,9 +14,9 @@
 
 // CScribbleView
 
-IMPLEMENT_DYNCREATE(CScribbleView, CView)
+IMPLEMENT_DYNCREATE(CScribbleView, CScrollView)
 
-BEGIN_MESSAGE_MAP(CScribbleView, CView)
+BEGIN_MESSAGE_MAP(CScribbleView, CScrollView)
 	// 標準列印命令
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
@@ -47,11 +47,28 @@ BOOL CScribbleView::PreCreateWindow(CREATESTRUCT& cs)
 }
 
 // CScribbleView 描繪
+/*
+In the OnDraw function, the view first calls the GetClipBox member function of CDC to get the invalidated portion of the client area.
+Then the view iterates through the list of strokes in the document, calling IntersectRect for each to determine if any part of the
+stroke lies in the invalidated region. If so, the view asks the stroke to draw itself. Any strokes that don’t intersect the invalidated 
+region don’t have to be redrawn.
+*/
 
 void CScribbleView::OnDraw(CDC* pDC)
 {
 	CScribbleDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
+	// Get the invalidated rectangle of the view, or in the case
+	// of printing, the clipping region of the printer DC.
+	CRect rectClip;
+	CRect rectStroke;
+	pDC->GetClipBox(&rectClip);
+
+	//Note: CScrollView::OnPaint() will have already adjusted the
+	//viewpoint origin before calling OnDraw(), to reflect the
+	//currently scrolled position.
+
 	if (!pDoc)
 		return;
 
@@ -63,6 +80,9 @@ void CScribbleView::OnDraw(CDC* pDC)
 	while (pos != NULL)
 	{
 		CStroke* pStroke = strokeList.GetNext(pos);
+		rectStroke = pStroke->GetBoundingRect();
+		if (!rectStroke.IntersectRect(&rectStroke, &rectClip))
+			continue;
 		pStroke->DrawStroke( pDC );
 	}
 }
@@ -112,6 +132,13 @@ CScribbleDoc* CScribbleView::GetDocument() const // 內嵌非偵錯版本
 
 void CScribbleView::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	// CScrollView changes the viewport origin and mapping mode.
+	// It's necessary to convert the point from device coordinates
+	// to logical coordinates, such as are stored in the document.
+	CClientDC dc(this);
+	OnPrepareDC(&dc); // set up mapping mode and viewport origin
+	dc.DPtoLP(&point);
+
 	// Pressing the mouse button in the view window
 	// starts a new stroke.
 
@@ -140,11 +167,26 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 
 	CScribbleDoc* pDoc = GetDocument();
 	CClientDC dc( this );
+	// CScrollView changes the viewport origin and mapping mode.
+	// It's necessary to convert the point from device coordinates
+	// to logical coordinates, such as are stored in the document.
+	OnPrepareDC(&dc);  // set up mapping mode and viewport origin
+	dc.DPtoLP(&point);
+
 	CPen* pOldPen = dc.SelectObject( pDoc->GetCurrentPen( ) );
 	dc.MoveTo( m_ptPrev );
 	dc.LineTo( point );
 	dc.SelectObject( pOldPen );
 	m_pStrokeCur->m_pointArray.Add(point);
+
+	// Tell the stroke item that we're done adding points to it.
+	// This is so it can finish computing its bounding rectangle.
+	m_pStrokeCur->FinishStroke(); 
+
+	// Tell the other views that this stroke has been added
+	// so that they can invalidate this stroke's area in their
+	// client area.
+	pDoc->UpdateAllViews(this, 0L, m_pStrokeCur);
 
 	ReleaseCapture( );    // Release the mouse capture established
 	// at the beginning of the mouse drag.
@@ -164,6 +206,11 @@ void CScribbleView::OnMouseMove(UINT nFlags, CPoint point)
 	// mouse, the user isn't drawing in this window.
 
 	CClientDC dc( this );
+	// CScrollView changes the viewport origin and mapping mode.
+	// It's necessary to convert the point from device coordinates
+	// to logical coordinates, such as are stored in the document.
+	OnPrepareDC(&dc); // set up mapping mode and viewport origin
+	dc.DPtoLP(&point);
 
 	m_pStrokeCur->m_pointArray.Add(point);
 
@@ -178,4 +225,52 @@ void CScribbleView::OnMouseMove(UINT nFlags, CPoint point)
 	return;
 	//
 	//CView::OnMouseMove(nFlags, point);
+}
+
+void CScribbleView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
+{
+	// The document has informed this view that some data has changed.
+
+	if (pHint != NULL)
+	{
+		if (pHint->IsKindOf(RUNTIME_CLASS(CStroke)))
+		{
+			// The hint is that a stroke has been added (or changed).
+			// So, invalidate its rectangle.
+			CStroke* pStroke = (CStroke*)pHint;
+			CClientDC dc(this);
+			OnPrepareDC(&dc);
+			CRect rectInvalid = pStroke->GetBoundingRect();
+			InvalidateRect(&rectInvalid);
+			dc.LPtoDP(&rectInvalid);
+			return;
+		}
+	}
+	// We can't interpret the hint, so assume that anything might
+	// have been updated.
+	Invalidate();
+	return;
+}
+
+
+/*
+The SetScrollSizes member function is defined by CScrollView. Its first parameter is the mapping mode used to display the document.
+The current version of Scribble uses MM_TEXT as the mapping mode; in Lesson 9, Enhancing Printing, Scribble will use the MM_LOENGLISH 
+mapping mode for better printing. (For more information on mapping modes, see Enlarge the Printed Image in Lesson 9.)
+
+The second parameter is the total size of the document, which is needed to determine the scrolling limits. 
+The view uses the value returned by the document’s GetDocSize member function for this parameter.
+
+SetScrollSizes also has two other parameters for which Scribble uses the default values. 
+These are CSize values that represent the size of one “page” and one “line,”
+the distances to be scrolled if the user clicks the scroll bar or a scroll arrow. 
+The default values are 1/10th and 1/100th of the document size, respectively.
+*/
+void CScribbleView::OnInitialUpdate()
+{
+	SetScrollSizes( MM_TEXT, GetDocument()->GetDocSize() );
+
+	CScrollView::OnInitialUpdate();
+
+	// TODO: Add your specialized code here and/or call the base class
 }

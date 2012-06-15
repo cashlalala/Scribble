@@ -21,10 +21,14 @@ public:
 	BOOL    m_bThickPen;    // Thick currently selected or not
 	UINT    m_nThinWidth;    // Current definition of thin
 	UINT    m_nThickWidth;    // Current definition of thick
+protected:
+	CSize m_sizeDoc;
 
 // §@·~
 public:
 	CPen*   GetCurrentPen();
+public:
+	CSize GetDocSize() { return m_sizeDoc; }
 
 // ÂÐ¼g
 public:

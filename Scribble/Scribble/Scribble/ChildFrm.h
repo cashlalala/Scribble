@@ -3,6 +3,7 @@
 
 
 #pragma once
+#include "afxext.h"
 
 
 class CChildFrame : public CMDIChildWnd
@@ -31,4 +32,6 @@ public:
 // 產生的訊息對應函式
 protected:
 	DECLARE_MESSAGE_MAP()
+	CSplitterWnd m_wndSplitter;
+	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 };
