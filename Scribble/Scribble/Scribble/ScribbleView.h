@@ -3,6 +3,8 @@
 
 
 #pragma once
+//#include "CStroke.h"
+//#include "ScribbleDoc.h"
 #include "cpenwidthsdlg.h"
 
 
@@ -11,13 +13,12 @@ class CScribbleView : public CScrollView
 protected: // 僅從序列化建立
 	CScribbleView();
 	DECLARE_DYNCREATE(CScribbleView)
-
 // 屬性
-public:
-	CScribbleDoc* GetDocument() const;
 protected:
 	CStroke*   m_pStrokeCur;    // The stroke in progress
 	CPoint     m_ptPrev;    // The last mouse pt in the stroke
+public:
+	CScribbleDoc* GetDocument() const;
 
 // 作業
 public:

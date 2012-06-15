@@ -1,11 +1,8 @@
 // ChildFrm.cpp : CChildFrame 類別的實作
 //
 #include "stdafx.h"
-#include "Scribble.h"
 
 #include "ChildFrm.h"
-
-//#include "ScribbleView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -82,25 +79,25 @@ The seventh argument specifies the ID to be assigned to the splitter window.
 Its default value is AFX_IDW_PANE_FIRST, which is the ID of the first pane.
 Because Scribble doesn't pass any values for these, the default values are used.
 */
-BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
+
+BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT /*lpcs*/, CCreateContext* pContext)
 {
-	m_wndSplitter.CreateStatic(this,
-		1,  //col
-		2);  //row
+	//m_wndSplitter.CreateStatic(this,
+	//	1,  //col
+	//	2);  //row
+	//m_wndSplitter.CreateView(0, 0, //col, row
+	//	RUNTIME_CLASS(CView), //view class
+	//	CSize(200, 150), //size
+	//	pContext);   //constructor of parent window
 
-	m_wndSplitter.CreateView(0, 0, //col, row
-		RUNTIME_CLASS(CScribbleView), //view class
-		CSize(450, 250), //size
-		pContext);   //constructor of parent window
+	//m_wndSplitter.CreateView(0, 1, RUNTIME_CLASS(CView),
+	//	CSize(200, 150), pContext);
+	//return 1; 
 
-	m_wndSplitter.CreateView(0, 1, RUNTIME_CLASS(CScribbleView),
-		CSize(450, 250), pContext);
-	return 1; 
-
-	//return m_wndSplitter.Create(this,
-	//							2, 2,       // TODO: adjust the number of rows, columns
-	//							CSize(10, 10),  // TODO: adjust the minimum pane size
-	//							pContext);
+	return m_wndSplitter.Create(this,
+								1, 2,       // TODO: adjust the number of rows, columns
+								CSize(10, 10),  // TODO: adjust the minimum pane size
+								pContext);
 
 	//return CMDIChildWnd::OnCreateClient(lpcs, pContext);
 }
