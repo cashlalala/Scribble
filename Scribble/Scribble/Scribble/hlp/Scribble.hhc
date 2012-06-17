@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="&lt;&lt;YourApp&gt;&gt;說明索引">
+		<param name="Local" value="main_index.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="功能表">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="檔案功能表命令">
+			<param name="Local" value="menu_file.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="編輯功能表命令">
+			<param name="Local" value="menu_edit.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="檢視功能表命令">
+			<param name="Local" value="menu_view.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="視窗功能表命令">
+			<param name="Local" value="menu_window.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="說明功能表命令">
+			<param name="Local" value="menu_help.htm">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="狀態列">
+		<param name="Local" value="afx_hidw_status_bar.htm">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="工具列">
+		<param name="Local" value="afx_hidw_toolbar.htm">
+		</OBJECT>
+</UL>
+</BODY></HTML>
