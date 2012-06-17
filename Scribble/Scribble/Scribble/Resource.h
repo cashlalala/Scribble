@@ -18,13 +18,14 @@
 #define ID_PEN_THICK_OR_THIN            32776
 #define ID_PEN_WIDTHS                   32777
 #define ID_32779                        32779
+#define ID_BUTTON32782                  32782
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         32780
+#define _APS_NEXT_COMMAND_VALUE         32783
 #define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
