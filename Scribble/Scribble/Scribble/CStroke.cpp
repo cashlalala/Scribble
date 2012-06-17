@@ -7,7 +7,7 @@
 
 
 // CStroke
-IMPLEMENT_SERIAL(CStroke,CObject,2)
+IMPLEMENT_SERIAL(CStroke,CObject,3)
 
 CStroke::CStroke()
 : m_nPenWidth(0)
@@ -86,13 +86,13 @@ void CStroke::FinishStroke(void)
 		pt = m_pointArray[i];
 		m_rectBounding.left   = min(m_rectBounding.left, pt.x);
 		m_rectBounding.right  = max(m_rectBounding.right, pt.x);
-		m_rectBounding.top    = min(m_rectBounding.top, pt.y);
-		m_rectBounding.bottom = max(m_rectBounding.bottom, pt.y);
+		m_rectBounding.top    = max(m_rectBounding.top, pt.y);
+		m_rectBounding.bottom = min(m_rectBounding.bottom, pt.y);
 	}
 
 	// Add the pen width to the bounding rectangle.  This is needed
 	// to account for the width of the stroke when invalidating
 	// the screen.
-	m_rectBounding.InflateRect(CSize(m_nPenWidth, m_nPenWidth));
+	m_rectBounding.InflateRect(CSize(m_nPenWidth,-(int) m_nPenWidth));
 	return;
 }

@@ -65,6 +65,9 @@ void CScribbleView::OnDraw(CDC* pDC)
 	CRect rectStroke;
 	pDC->GetClipBox(&rectClip);
 
+	pDC->LPtoDP(&rectClip);
+	rectClip.InflateRect(1, 1); // avoid rounding to nothing
+
 	//Note: CScrollView::OnPaint() will have already adjusted the
 	//viewpoint origin before calling OnDraw(), to reflect the
 	//currently scrolled position.
@@ -81,6 +84,10 @@ void CScribbleView::OnDraw(CDC* pDC)
 	{
 		CStroke* pStroke = strokeList.GetNext(pos);
 		rectStroke = pStroke->GetBoundingRect();
+
+		pDC->LPtoDP(&rectStroke);
+		rectStroke.InflateRect(1, 1);
+
 		if (!rectStroke.IntersectRect(&rectStroke, &rectClip))
 			continue;
 		pStroke->DrawStroke( pDC );
@@ -93,7 +100,15 @@ void CScribbleView::OnDraw(CDC* pDC)
 BOOL CScribbleView::OnPreparePrinting(CPrintInfo* pInfo)
 {
 	// 預設的準備列印程式碼
-	return DoPreparePrinting(pInfo);
+	pInfo->SetMaxPage(2);  // the document is two pages long:
+	// the first page is the title page
+	// the second page is the drawing
+
+	BOOL bRet = DoPreparePrinting (pInfo);      // default preparation
+	pInfo->m_nNumPreviewPages = 2;        //Preview 2 pages at a time
+	// Set this value after calling DoPreparePrinting to override
+	// value read from registry
+	return bRet;
 }
 
 void CScribbleView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
@@ -266,11 +281,99 @@ These are CSize values that represent the size of one “page” and one “line,”
 the distances to be scrolled if the user clicks the scroll bar or a scroll arrow. 
 The default values are 1/10th and 1/100th of the document size, respectively.
 */
+/*
+Recall that OnInitialUpdate is called immediately after the view is attached to the document. 
+This lets the view set its mapping mode before OnDraw is called.
+*/
 void CScribbleView::OnInitialUpdate()
 {
-	SetScrollSizes( MM_TEXT, GetDocument()->GetDocSize() );
+	SetScrollSizes( MM_LOENGLISH, GetDocument()->GetDocSize() );
 
 	CScrollView::OnInitialUpdate();
 
 	// TODO: Add your specialized code here and/or call the base class
+}
+
+void CScribbleView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
+{
+	if (pInfo->m_nCurPage == 1)     // page no. 1 is the title page
+	{
+		PrintTitlePage(pDC, pInfo);
+	}
+	else
+	{
+		CString strHeader = GetDocument()->GetTitle();
+
+		PrintPageHeader(pDC, pInfo, strHeader);
+		// PrintPageHeader() subtracts out from the pInfo->m_rectDraw the
+		// amount of the page used for the header.
+		pDC->SetWindowOrg(pInfo->m_rectDraw.left,-pInfo->m_rectDraw.top);
+
+		// Now print the rest of the page
+		OnDraw(pDC);
+	}
+	return;
+}
+
+
+/*
+The PrintTitlePage function uses m_rectDraw, which stores the usable drawing area of the page, 
+as the rectangle in which the title should be centered.
+
+Notice that PrintTitlePage declares a local CFont object to use when printing the title page. 
+If you needed the font for the entire printing process, you could declare a CFont member variable in your view class,
+create the font in the OnBeginPrinting member function, and destroy it in EndPrinting. 
+However, since Scribble uses the font for just the title page, 
+the font doesn’t have to exist beyond the PrintTitlePage function. 
+When the function ends, the destructor is automatically called for the local CFont object.
+*/
+void CScribbleView::PrintTitlePage(CDC* pDC, CPrintInfo* pInfo)
+{
+	// Prepare a font size for displaying the file name
+	LOGFONT logFont;
+	memset(&logFont, 0, sizeof(LOGFONT));
+	logFont.lfHeight = 75; //  3/4th inch high in MM_LOENGLISH
+	CFont font;
+	CFont* pOldFont = NULL;
+	if (font.CreateFontIndirect(&logFont))
+		pOldFont = pDC->SelectObject(&font);
+
+	// Get the file name, to be displayed on title page
+	CString strPageTitle = GetDocument()->GetTitle();
+
+	// Display the file name 1 inch below top of the page,
+	// centered horizontally
+	pDC->SetTextAlign(TA_CENTER);
+	pDC->TextOut(pInfo->m_rectDraw.right/2, -100, strPageTitle);
+
+	if (pOldFont != NULL)
+		pDC->SelectObject(pOldFont);
+}
+
+/*
+The PrintPageHeader member function prints the name of the document at the top of the page
+, and then draws a horizontal line separating the header from the drawing.
+It adjusts the m_rectDraw member of the pInfo parameter to account for the height of the header; 
+recall that OnPrint uses this value to adjust the window origin before it calls OnDraw.
+*/
+void CScribbleView::PrintPageHeader(CDC*  pDC, CPrintInfo* pInfo, CString& strHeader)
+{
+	// Specify left text alignment
+	pDC->SetTextAlign(TA_LEFT);
+
+	// Print a page header consisting of the name of
+	// the document and a horizontal line
+	pDC->TextOut(0, -25, strHeader);  // 1/4 inch down
+
+	// Draw a line across the page, below the header
+	TEXTMETRIC textMetric;
+	pDC->GetTextMetrics(&textMetric);
+	int y = -35 - textMetric.tmHeight;        // line 1/10th in.
+	// below text
+	pDC->MoveTo(0, y);                        // from left margin
+	pDC->LineTo(pInfo->m_rectDraw.right, y); //  to right margin
+
+	// Subtract from the drawing rectangle the space used by header.
+	y -= 25;     // space 1/4 inch below (top of) line
+	pInfo->m_rectDraw.top += y;
 }

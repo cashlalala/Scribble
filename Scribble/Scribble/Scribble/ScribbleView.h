@@ -54,6 +54,11 @@ protected:
 	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
 public:
 	virtual void OnInitialUpdate();
+protected:
+	virtual void OnPrint(CDC* pDC, CPrintInfo* pInfo);
+public:
+	void PrintTitlePage(CDC* pDC, CPrintInfo* pInfo);
+	void PrintPageHeader(CDC*  pDC, CPrintInfo* pInfo, CString& strHeader);
 };
 
 #ifndef _DEBUG  // ScribbleView.cpp ¤¤ªº°»¿ùª©¥»
