@@ -95,7 +95,7 @@ BEGIN
     BUTTON      ID_FILE_PRINT
     BUTTON      ID_APP_ABOUT
     BUTTON      ID_PEN_THICK_OR_THIN
-    BUTTON      ID_BUTTON32782
+    BUTTON      ID_CONTEXT_HELP
 END
 
 
@@ -333,7 +333,8 @@ END
 STRINGTABLE 
 BEGIN
     AFX_IDS_APP_TITLE       "Scribble"
-    AFX_IDS_IDLEMESSAGE     "就緒"
+    AFX_IDS_IDLEMESSAGE     "如需說明，請按 F1"
+    AFX_IDS_HELPMODEMESSAGE "選取要取得說明的物件"
 END
 
 STRINGTABLE 
@@ -364,6 +365,8 @@ STRINGTABLE
 BEGIN
     ID_APP_ABOUT            "顯示程式資訊、版本號碼及著作權\n關於"
     ID_APP_EXIT             "結束應用程式; 提示使用者儲存文件\n結束"
+    ID_HELP_FINDER          "列出說明主題\n說明主題"
+    ID_CONTEXT_HELP         "顯示所按按鈕、功能表與視窗的說明\n說明"
 END
 
 STRINGTABLE 
