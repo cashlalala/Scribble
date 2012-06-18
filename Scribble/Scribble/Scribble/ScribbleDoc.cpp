@@ -178,15 +178,15 @@ void CScribbleDoc::OnPenWidths()
 {
 	CPenWidthsDlg dlg;
 	// Initialize dialog data
-	dlg.m_sThinWidth.Format(_T("%d"),m_nThinWidth);
-	dlg.m_sThickWidth.Format(_T("%d"),m_nThickWidth);
+	dlg.SetThickWidth(m_nThickWidth);
+	dlg.SetThinWidth(m_nThinWidth);
 
 	// Invoke the dialog box
 	if (dlg.DoModal() == IDOK)
 	{
 		// retrieve the dialog data
-		m_nThinWidth = _ttoi(dlg.m_sThinWidth);
-		m_nThickWidth = _ttoi(dlg.m_sThickWidth);
+		m_nThinWidth = dlg.GetThinWidth();
+		m_nThickWidth = dlg.GetThickWidth();
 
 		// Update the pen used by views when drawing new strokes
 		// to reflect the new pen widths for "thick" and "thin".
