@@ -10,6 +10,9 @@
 #define IDC_DEFAULT_PEN_WIDTHS          1000
 #define IDC_THIN_PEN_WIDTH              1001
 #define IDC_THICK_PEN_WIDTH             1004
+#define IDC_SLIDER_THIN_PEN_WIDTH       1005
+#define IDC_SLIDER2                     1006
+#define IDC_SLIDER_THICK_PEN_WIDTH      1006
 #define ID_32771                        32771
 #define ID_FILE_CLEAR_ALL               32772
 #define ID_32773                        32773
@@ -26,7 +29,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32783
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
