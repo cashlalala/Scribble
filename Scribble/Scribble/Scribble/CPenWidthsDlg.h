@@ -42,10 +42,11 @@ public:
 //	void DoSyncUpdateData(UINT id);
 //	void SyncDataForView(UINT id);
 public:
-	inline void InitThinCtrlsVal();
+	inline void InitThinCtrls();
 	inline void InitThickCtrls();
 	int GetThinWidth() const;
 	void SetThinWidth(const int width);
 	int GetThickWidth() const;
 	void SetThickWidth(const int width);
+	afx_msg void OnEnUpdateThickPenWidth();
 };

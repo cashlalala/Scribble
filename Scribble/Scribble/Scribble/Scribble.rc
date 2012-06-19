@@ -96,6 +96,7 @@ BEGIN
     BUTTON      ID_APP_ABOUT
     BUTTON      ID_PEN_THICK_OR_THIN
     BUTTON      ID_CONTEXT_HELP
+    BUTTON      ID_PEN_WIDTHS
 END
 
 
@@ -164,6 +165,7 @@ BEGIN
     BEGIN
         MENUITEM "Thick &Line",                 ID_PEN_THICK_OR_THIN
         MENUITEM "Pen &Widths....",             ID_PEN_WIDTHS
+        MENUITEM "Pen Color\tCtrl+R",           ID_PEN_COLOR
     END
     POPUP "ÀËµø(&V)"
     BEGIN
@@ -185,6 +187,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Ãö©ó Scribble(&A)...",          ID_APP_ABOUT
     END
+    MENUITEM SEPARATOR
 END
 
 
@@ -195,6 +198,7 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
+    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
@@ -207,10 +211,10 @@ BEGIN
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
-    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
+    "R",            ID_PEN_COLOR,           VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -244,6 +248,21 @@ BEGIN
     LTEXT           "Thick Pen Width",IDC_STATIC,7,42,65,11
     CONTROL         "",IDC_SLIDER_THIN_PEN_WIDTH,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,7,24,170,9
     CONTROL         "",IDC_SLIDER_THICK_PEN_WIDTH,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,7,60,170,9
+END
+
+IDD_PEN_COLOR DIALOGEX 0, 0, 199, 120
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Pen Color"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,51,99,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,109,99,50,14
+    EDITTEXT        IDC_EDIT_PEN_CLR_GREEN,109,43,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PEN_CLR_RED,109,22,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PEN_CLR_BLUE,109,65,40,14,ES_AUTOHSCROLL
+    LTEXT           "RED",IDC_STATIC,30,24,60,12
+    LTEXT           "GREEN",IDC_STATIC,30,45,60,12
+    LTEXT           "BLUE",IDC_STATIC,30,67,60,12
 END
 
 
@@ -310,6 +329,19 @@ BEGIN
         BOTTOMMARGIN, 102
         HORZGUIDE, 33
         HORZGUIDE, 69
+    END
+
+    IDD_PEN_COLOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 192
+        VERTGUIDE, 30
+        VERTGUIDE, 109
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 113
+        HORZGUIDE, 36
+        HORZGUIDE, 57
+        HORZGUIDE, 79
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -454,6 +486,11 @@ STRINGTABLE
 BEGIN
     ID_PEN_THICK_OR_THIN    "Toggles the line thickness between thin and thick\nToggle Pen"
     ID_PEN_WIDTHS           "Sets the size of the thin and thick pen"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_PEN_COLOR            "Click to choose pen color"
 END
 
 #endif    // Chinese (Taiwan) resources

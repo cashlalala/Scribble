@@ -61,6 +61,7 @@ public:
 	afx_msg void OnUpdateEditC(CCmdUI *pCmdUI);
 	afx_msg void OnUpdatePenThickOrThin(CCmdUI *pCmdUI);
 	afx_msg void OnPenWidths();
+	afx_msg void OnPenColor();
 };
 
 

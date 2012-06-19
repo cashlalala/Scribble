@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CPenClrDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CPenWidthsDlg.cpp"
 				>
 			</File>
@@ -244,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CPenClrDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CPenWidthsDlg.h"
 				>
 			</File>
@@ -258,7 +266,7 @@
 			<File
 				RelativePath=".\Resource.h"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -356,7 +364,7 @@
 						Outputs="$(OutDir)\$(ProjectName).chm"
 					/>
 				</FileConfiguration>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool

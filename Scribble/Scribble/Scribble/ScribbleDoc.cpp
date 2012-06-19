@@ -6,6 +6,7 @@
 
 #include "ScribbleDoc.h"
 #include "CPenWidthsDlg.h"
+#include "CPenClrDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -24,6 +25,7 @@ BEGIN_MESSAGE_MAP(CScribbleDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_C, &CScribbleDoc::OnUpdateEditC)
 	ON_UPDATE_COMMAND_UI(ID_PEN_THICK_OR_THIN, &CScribbleDoc::OnUpdatePenThickOrThin)
 	ON_COMMAND(ID_PEN_WIDTHS, &CScribbleDoc::OnPenWidths)
+	ON_COMMAND(ID_PEN_COLOR, &CScribbleDoc::OnPenColor)
 END_MESSAGE_MAP()
 
 
@@ -191,5 +193,16 @@ void CScribbleDoc::OnPenWidths()
 		// Update the pen used by views when drawing new strokes
 		// to reflect the new pen widths for "thick" and "thin".
 		ReplacePen();
+	}
+}
+
+void CScribbleDoc::OnPenColor()
+{
+	CPenClrDlg dlg;
+
+	if (dlg.DoModal() == IDOK)
+	{
+		m_penCur.DeleteObject();
+		m_penCur.CreatePen( PS_SOLID, m_nPenWidth, RGB(dlg.m_nPenClrRed,dlg.m_nPenClrGreen,dlg.m_nPenClrBlue) );
 	}
 }
