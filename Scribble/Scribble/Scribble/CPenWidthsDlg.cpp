@@ -12,8 +12,19 @@ IMPLEMENT_DYNAMIC(CPenWidthsDlg, CDialog)
 
 CPenWidthsDlg::CPenWidthsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CPenWidthsDlg::IDD, pParent)
-	, m_nThinWidth(2)
-	, m_nThickWidth(5)
+	, m_nTextBoxThinWidth(0)
+	, m_nTextBoxThickWidth(0)
+	, m_nThinPenWidth(0)
+	, m_nThickPenWidth(0)
+{
+}
+
+CPenWidthsDlg::CPenWidthsDlg(UINT nThickWidth,UINT nThinWidth)
+	: CDialog(CPenWidthsDlg::IDD)
+	, m_nThinPenWidth(nThinWidth)
+	, m_nThickPenWidth(nThickWidth)
+	, m_nTextBoxThickWidth(nThickWidth)
+	, m_nTextBoxThinWidth(nThinWidth)
 {
 }
 
@@ -34,24 +45,21 @@ void CPenWidthsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 
-	DDX_Text(pDX, IDC_THIN_PEN_WIDTH, m_nThinWidth);
-	DDV_MinMaxInt(pDX, m_nThinWidth, MIN_SCROLL_WIDTH, MAX_SCROLL_WIDTH);
-
+	DDX_Text(pDX, IDC_THIN_PEN_WIDTH, m_nTextBoxThinWidth);
 	DDX_Control(pDX, IDC_SLIDER_THIN_PEN_WIDTH, m_ctrSliderThinWidth);
-
-	DDX_Text(pDX, IDC_THICK_PEN_WIDTH, m_nThickWidth);
-	DDV_MinMaxInt(pDX, m_nThickWidth, m_nThinWidth, MAX_SCROLL_WIDTH);
-
+	DDX_Text(pDX, IDC_THICK_PEN_WIDTH, m_nTextBoxThickWidth);
 	DDX_Control(pDX, IDC_SLIDER_THICK_PEN_WIDTH, m_ctrSliderThickWidth);
+	//DDV_MinMaxInt(pDX, m_nTextBoxThinWidth, MIN_SCROLL_WIDTH, MAX_SCROLL_WIDTH);
+	//DDV_MinMaxInt(pDX, m_nTextBoxThickWidth, m_nThinPenWidth, MAX_SCROLL_WIDTH);
 }
 
 
 BEGIN_MESSAGE_MAP(CPenWidthsDlg, CDialog)
 	ON_BN_CLICKED(IDC_DEFAULT_PEN_WIDTHS, &CPenWidthsDlg::OnBnClickedDefaultPenWidths)
 	ON_WM_HSCROLL()
-	ON_EN_UPDATE(IDC_THIN_PEN_WIDTH, &CPenWidthsDlg::OnEnUpdateThinPenWidth)
 	ON_WM_CHAR()
-	ON_EN_UPDATE(IDC_THICK_PEN_WIDTH, &CPenWidthsDlg::OnEnUpdateThickPenWidth)
+	ON_EN_CHANGE(IDC_THICK_PEN_WIDTH, &CPenWidthsDlg::OnEnChangeThickPenWidth)
+	ON_EN_CHANGE(IDC_THIN_PEN_WIDTH, &CPenWidthsDlg::OnEnChangeThinPenWidth)
 END_MESSAGE_MAP()
 
 
@@ -83,12 +91,12 @@ BOOL CPenWidthsDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	//Initialize scroll bar position one time
-	if (!m_ctrSliderThinWidth.GetPos()){
-		InitThinCtrls();
-	}
-	if (!m_ctrSliderThickWidth.GetPos()){
-		InitThickCtrls();
-	}
+	m_ctrSliderThinWidth.SetRange(MIN_SCROLL_WIDTH,MAX_SCROLL_WIDTH,TRUE);
+	SetValidThinWidth((m_nThinPenWidth)?m_nThinPenWidth:DEFAUT_THIN_VAL);
+
+	m_ctrSliderThickWidth.SetRange(m_nThinPenWidth,MAX_SCROLL_WIDTH,TRUE);
+	SetValidThickWidth(m_nThickPenWidth?m_nThickPenWidth:DEFAUT_THICK_VAL);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -98,11 +106,11 @@ void CPenWidthsDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	// TODO: Add your message handler code here and/or call default
 	if (pScrollBar == (CScrollBar *) &m_ctrSliderThinWidth)
 	{
-		SetThinWidth(m_ctrSliderThinWidth.GetPos());
+		SetValidThinWidth(m_ctrSliderThinWidth.GetPos());
 	}
 	else if (pScrollBar == (CScrollBar *) &m_ctrSliderThickWidth)
 	{
-		SetThickWidth(m_ctrSliderThickWidth.GetPos());
+		SetValidThickWidth(m_ctrSliderThickWidth.GetPos());
 	}
 	else
 	{
@@ -111,17 +119,6 @@ void CPenWidthsDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	UpdateData(FALSE);
 }
 
-
-void CPenWidthsDlg::OnEnUpdateThinPenWidth()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialog::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-	UpdateData(TRUE);
-	SetThinWidth(m_nThinWidth);
-	UpdateData(FALSE);
-}
 
 void CPenWidthsDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
@@ -134,63 +131,101 @@ void CPenWidthsDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 }
 
 
-int CPenWidthsDlg::GetThinWidth() const
-{
-	return m_nThinWidth;
-}
-
-int CPenWidthsDlg::GetThickWidth() const
-{
-	return m_nThickWidth;
-}
-
-void CPenWidthsDlg::SetThinWidth( const int width )
-{
-	m_nThinWidth = width;
-	if (m_ctrSliderThinWidth && m_ctrSliderThickWidth){
-		m_ctrSliderThinWidth.SetPos(width);
-		if(m_ctrSliderThinWidth.GetPos()>m_ctrSliderThickWidth.GetPos()){
-			m_ctrSliderThickWidth.SetPos(m_nThinWidth);
-			m_nThickWidth = m_nThinWidth;
-		}
-		m_ctrSliderThickWidth.SetRangeMin(m_nThinWidth,TRUE);
-	}
-}
-
-void CPenWidthsDlg::SetThickWidth( const int width )
-{
-	if (width < m_nThinWidth)
-	{
-		m_nThickWidth = m_nThinWidth;
-	}
-	m_nThickWidth = width;
-	if (m_ctrSliderThickWidth)
-		m_ctrSliderThickWidth.SetPos(m_nThickWidth);
-	
-}
-
 inline void CPenWidthsDlg::InitThinCtrls()
 {
-	m_nThinWidth= DEFAUT_THIN_VAL;
+	m_nThickPenWidth = DEFAUT_THICK_VAL;
+	m_nTextBoxThinWidth= DEFAUT_THIN_VAL;
 	m_ctrSliderThinWidth.SetRange(MIN_SCROLL_WIDTH,MAX_SCROLL_WIDTH,TRUE);
-	m_ctrSliderThinWidth.SetPos(m_nThinWidth);
+	m_ctrSliderThinWidth.SetPos(m_nTextBoxThinWidth);
 }
 
 inline void CPenWidthsDlg::InitThickCtrls()
 {
-	m_nThickWidth=DEFAUT_THICK_VAL;
+	m_nThickPenWidth = DEFAUT_THIN_VAL;
+	m_nTextBoxThickWidth=DEFAUT_THICK_VAL;
 	m_ctrSliderThickWidth.SetRange(DEFAUT_THIN_VAL,MAX_SCROLL_WIDTH,TRUE);
 	m_ctrSliderThickWidth.SetPos(DEFAUT_THICK_VAL);
 }
 
-void CPenWidthsDlg::OnEnUpdateThickPenWidth()
+int CPenWidthsDlg::GetThinWidth() const
+{
+	return m_nThinPenWidth;
+}
+
+int CPenWidthsDlg::GetThickWidth() const
+{
+	return m_nThickPenWidth;
+}
+
+void CPenWidthsDlg::SetValidThinWidth( const int width )
+{
+	if (width > MAX_SCROLL_WIDTH){
+		MessageBox(_T("寬度不能大於20"),_T("警告"));
+		return;
+	}
+	else if (width < MIN_SCROLL_WIDTH)
+	{
+		MessageBox(_T("寬度不能小於1"),_T("警告"));
+		return;
+	}
+	else
+		SetThinWidth(width);
+}
+
+void CPenWidthsDlg::SetValidThickWidth( const int width )
+{
+	if (width < m_nThinPenWidth)
+	{
+		MessageBox(_T("寬度不能小於Thin Pen!!"),_T("警告"));
+		return;
+	}
+	else if (width > MAX_SCROLL_WIDTH)
+	{
+		MessageBox(_T("寬度不能大於20!!"),_T("警告"));
+		return;
+	}
+	SetThickWidth(width);	
+}
+
+void CPenWidthsDlg::OnEnChangeThickPenWidth()
 {
 	// TODO:  If this is a RICHEDIT control, the control will not
 	// send this notification unless you override the CDialog::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
 	UpdateData(TRUE);
-	SetThickWidth(m_nThickWidth);
+	SetValidThickWidth(m_nTextBoxThickWidth);
 	UpdateData(FALSE);
+}
+
+void CPenWidthsDlg::OnEnChangeThinPenWidth()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialog::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	UpdateData(TRUE);
+	SetValidThinWidth(m_nTextBoxThinWidth);
+	UpdateData(FALSE);
+}
+
+void CPenWidthsDlg::SetThinWidth( const int width )
+{
+	m_nThinPenWidth = width;
+	//set all relative thin width
+	m_nTextBoxThinWidth = m_nThinPenWidth;
+	m_ctrSliderThinWidth.SetPos(m_nThinPenWidth);
+	//update thick width 
+	if(m_nThinPenWidth>m_nThickPenWidth)
+		SetValidThickWidth(m_nThinPenWidth);
+	m_ctrSliderThickWidth.SetRangeMin(m_nThinPenWidth,TRUE);
+}
+
+void CPenWidthsDlg::SetThickWidth( const int width )
+{
+	m_nThickPenWidth = width;
+
+	//set all relative thick width
+	m_nTextBoxThickWidth = m_nThickPenWidth;
+	m_ctrSliderThickWidth.SetPos(m_nThickPenWidth);
 }

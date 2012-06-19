@@ -178,10 +178,7 @@ void CScribbleDoc::OnUpdatePenThickOrThin(CCmdUI *pCmdUI)
 
 void CScribbleDoc::OnPenWidths()
 {
-	CPenWidthsDlg dlg;
-	// Initialize dialog data
-	dlg.SetThickWidth(m_nThickWidth);
-	dlg.SetThinWidth(m_nThinWidth);
+	CPenWidthsDlg dlg(m_nThickWidth,m_nThinWidth);
 
 	// Invoke the dialog box
 	if (dlg.DoModal() == IDOK)

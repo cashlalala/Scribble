@@ -17,6 +17,7 @@ class CPenWidthsDlg : public CDialog
 
 public:
 	CPenWidthsDlg(CWnd* pParent = NULL);   // standard constructor
+	CPenWidthsDlg(UINT nThickWidth,UINT nThinWidth);
 	virtual ~CPenWidthsDlg();
 
 // Dialog Data
@@ -24,8 +25,8 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	int m_nThinWidth;
-	int m_nThickWidth;
+	int m_nTextBoxThinWidth;
+	int m_nTextBoxThickWidth;
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -36,7 +37,7 @@ public:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	CSliderCtrl m_ctrSliderThinWidth;
 	CSliderCtrl m_ctrSliderThickWidth;
-	afx_msg void OnEnUpdateThinPenWidth();
+//	afx_msg void OnEnUpdateThinPenWidth();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 //public:
 //	void DoSyncUpdateData(UINT id);
@@ -45,8 +46,19 @@ public:
 	inline void InitThinCtrls();
 	inline void InitThickCtrls();
 	int GetThinWidth() const;
-	void SetThinWidth(const int width);
+	void SetValidThinWidth(const int width);
+
+	void SetThinWidth( const int width );
+
 	int GetThickWidth() const;
-	void SetThickWidth(const int width);
-	afx_msg void OnEnUpdateThickPenWidth();
+	void SetValidThickWidth(const int width);
+
+	void SetThickWidth( const int width );
+
+	afx_msg void OnEnChangeThickPenWidth();
+	afx_msg void OnEnChangeThinPenWidth();
+
+private:
+	int m_nThinPenWidth;
+	int m_nThickPenWidth;
 };
