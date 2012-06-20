@@ -54,9 +54,9 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHT)\r\n"
     "LANGUAGE 4, 1\r\n"
     "#pragma code_page(950)\r\n"
-    "#include ""res\\Scribble.rc2""  // 非 Microsoft Visual C++ 編輯過的資源\r\n"
-    "#include ""l.CHT\\afxres.rc""          // 標準元件\r\n"
-    "#include ""l.CHT\\afxprint.rc""        // 列印/預覽列印資源\r\n"
+    "#include ""res\\Scribble.rc2""  // ?D Microsoft Visual C++ ?s?e1Lao﹐e·?\r\n"
+    "#include ""l.CHT\\afxres.rc""          // ?D·C?﹐￥o\r\n"
+    "#include ""l.CHT\\afxprint.rc""        // |C|L/1wAy|C|L﹐e·?\r\n"
     "#endif\r\n"
     "\0"
 END
@@ -265,6 +265,21 @@ BEGIN
     LTEXT           "BLUE",IDC_STATIC,30,67,60,12
 END
 
+IDD_CAV_SZ_BG_COLOR DIALOGEX 0, 0, 265, 104
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Canva Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,197,18,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,197,44,50,14
+    LTEXT           "Width",IDC_STATIC,41,21,48,11
+    LTEXT           "Height",IDC_STATIC,41,47,48,11
+    PUSHBUTTON      "Color",IDC_BUTTON1,29,72,47,14
+    LTEXT           "",IDC_CUR_COLOR,109,72,59,14,WS_BORDER
+    EDITTEXT        IDC_EDIT1,111,18,57,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT2,111,44,57,14,ES_AUTOHSCROLL
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -342,6 +357,19 @@ BEGIN
         HORZGUIDE, 36
         HORZGUIDE, 57
         HORZGUIDE, 79
+    END
+
+    IDD_CAV_SZ_BG_COLOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 258
+        VERTGUIDE, 89
+        VERTGUIDE, 168
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 97
+        HORZGUIDE, 32
+        HORZGUIDE, 58
+        HORZGUIDE, 86
     END
 END
 #endif    // APSTUDIO_INVOKED

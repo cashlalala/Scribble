@@ -8,6 +8,7 @@
 #define IDR_ScribbleTYPE                129
 #define IDD_PEN_WIDTHS                  130
 #define IDD_PEN_COLOR                   132
+#define IDD_CAV_SZ_BG_COLOR             133
 #define IDC_DEFAULT_PEN_WIDTHS          1000
 #define IDC_THIN_PEN_WIDTH              1001
 #define IDC_THICK_PEN_WIDTH             1004
@@ -15,8 +16,11 @@
 #define IDC_SLIDER_THICK_PEN_WIDTH      1006
 #define IDC_EDIT_PEN_CLR_GREEN          1006
 #define IDC_EDIT_PEN_CLR_RED            1007
-#define IDC_EDIT3                       1008
 #define IDC_EDIT_PEN_CLR_BLUE           1008
+#define IDC_BUTTON1                     1010
+#define IDC_CUR_COLOR                   1011
+#define IDC_EDIT1                       1012
+#define IDC_EDIT2                       1013
 #define ID_32771                        32771
 #define ID_FILE_CLEAR_ALL               32772
 #define ID_32773                        32773
@@ -33,9 +37,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32788
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
