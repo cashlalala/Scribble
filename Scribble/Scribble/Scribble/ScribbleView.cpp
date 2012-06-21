@@ -29,6 +29,8 @@ END_MESSAGE_MAP()
 // CScribbleView 建構/解構
 
 CScribbleView::CScribbleView()
+: m_nrestrictWidth(100)
+, m_nrestrictHeight(100)
 {
 	// TODO: 在此加入建構程式碼
 
@@ -56,42 +58,66 @@ region don’t have to be redrawn.
 
 void CScribbleView::OnDraw(CDC* pDC)
 {
+	
+
+	CDC MemDC;
+	CBitmap MemBitmap;
+
+	CRect rcClient;		
+	GetClientRect(rcClient);
+
+	MemDC.CreateCompatibleDC(pDC);
+	MemBitmap.CreateCompatibleBitmap(pDC,rcClient.right,rcClient.bottom);
+
+	CBitmap *pOldBit=MemDC.SelectObject(&MemBitmap);
+	CRect tmp(CPoint(10,10),CSize(50,50));
+	MemDC.LPtoDP(&tmp);
+
+
+	MemDC.FillSolidRect(&tmp,RGB(0,255,0));
+
 	CScribbleDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	// Get the invalidated rectangle of the view, or in the case
-	// of printing, the clipping region of the printer DC.
-	CRect rectClip;
-	CRect rectStroke;
-	pDC->GetClipBox(&rectClip);
+	//// Get the invalidated rectangle of the view, or in the case
+	//// of printing, the clipping region of the printer DC.
+	//CRect rectClip;
+	//CRect rectStroke;
+	//MemDC.GetClipBox(&rectClip);
 
-	pDC->LPtoDP(&rectClip);
-	rectClip.InflateRect(1, 1); // avoid rounding to nothing
+	//MemDC.LPtoDP(&rectClip);
+	//rectClip.InflateRect(1, 1); // avoid rounding to nothing
 
-	//Note: CScrollView::OnPaint() will have already adjusted the
-	//viewpoint origin before calling OnDraw(), to reflect the
-	//currently scrolled position.
+	////Note: CScrollView::OnPaint() will have already adjusted the
+	////viewpoint origin before calling OnDraw(), to reflect the
+	////currently scrolled position.
 
-	if (!pDoc)
-		return;
+	//if (!pDoc)
+	//	return;
 
-	// The view delegates the drawing of individual strokes to
-	// CStroke::DrawStroke( ).
-	CTypedPtrList<CObList, CStroke*>& strokeList =
-		pDoc->m_strokeList;
-	POSITION pos = strokeList.GetHeadPosition( );
-	while (pos != NULL)
-	{
-		CStroke* pStroke = strokeList.GetNext(pos);
-		rectStroke = pStroke->GetBoundingRect();
+	//// The view delegates the drawing of individual strokes to
+	//// CStroke::DrawStroke( ).
+	//CTypedPtrList<CObList, CStroke*>& strokeList =
+	//	pDoc->m_strokeList;
+	//POSITION pos = strokeList.GetHeadPosition( );
+	//while (pos != NULL)
+	//{
+	//	CStroke* pStroke = strokeList.GetNext(pos);
+	//	rectStroke = pStroke->GetBoundingRect();
 
-		pDC->LPtoDP(&rectStroke);
-		rectStroke.InflateRect(1, 1);
+	//	MemDC.LPtoDP(&rectStroke);
+	//	rectStroke.InflateRect(1, 1);
 
-		if (!rectStroke.IntersectRect(&rectStroke, &rectClip))
-			continue;
-		pStroke->DrawStroke( pDC );
-	}
+	//	if (!rectStroke.IntersectRect(&rectStroke, &rectClip))
+	//		continue;
+	//	//pStroke->DrawStroke( pDC );
+	//	pStroke->DrawStrokeIn(&MemDC,m_nrestrictWidth,m_nrestrictHeight);
+	//}
+	//pDC->BitBlt(0,0,rcClient.right,rcClient.bottom,&MemDC,0,0,SRCCOPY);	
+	pDC->BitBlt(0,0,100,100,&MemDC,0,0,SRCCOPY);	
+
+	MemBitmap.DeleteObject();
+	MemDC.DeleteDC();
 }
 
 
@@ -147,6 +173,7 @@ CScribbleDoc* CScribbleView::GetDocument() const // 內嵌非偵錯版本
 
 void CScribbleView::OnLButtonDown(UINT nFlags, CPoint point)
 {
+
 	// CScrollView changes the viewport origin and mapping mode.
 	// It's necessary to convert the point from device coordinates
 	// to logical coordinates, such as are stored in the document.
@@ -158,6 +185,12 @@ void CScribbleView::OnLButtonDown(UINT nFlags, CPoint point)
 	// starts a new stroke.
 
 	m_pStrokeCur = GetDocument( )->NewStroke( );
+	
+	//if (point.x > m_nrestrictWidth
+	//	|| point.y < -(int)m_nrestrictHeight)
+	//{
+	//	return;
+	//}
 	// Add first point to the new stroke
 	m_pStrokeCur->m_pointArray.Add(point);
 
@@ -180,6 +213,13 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 		return;    // If this window (view) didn't capture the
 	// mouse, the user isn't drawing in this window.
 
+	//To avoid button up right after button down.
+	if (point.x > m_nrestrictWidth
+		|| point.y > m_nrestrictHeight)
+	{
+		return;
+	}
+
 	CScribbleDoc* pDoc = GetDocument();
 	CClientDC dc( this );
 	// CScrollView changes the viewport origin and mapping mode.
@@ -189,8 +229,12 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 	dc.DPtoLP(&point);
 
 	CPen* pOldPen = dc.SelectObject( pDoc->GetCurrentPen( ) );
-	dc.MoveTo( m_ptPrev );
-	dc.LineTo( point );
+	if (m_ptPrev.x!=point.x && m_ptPrev.y!=point.y)
+	{
+		dc.MoveTo( m_ptPrev );
+		dc.LineTo( point );
+	}
+
 	dc.SelectObject( pOldPen );
 	m_pStrokeCur->m_pointArray.Add(point);
 
@@ -226,15 +270,25 @@ void CScribbleView::OnMouseMove(UINT nFlags, CPoint point)
 	// to logical coordinates, such as are stored in the document.
 	OnPrepareDC(&dc); // set up mapping mode and viewport origin
 	dc.DPtoLP(&point);
-
+	
 	m_pStrokeCur->m_pointArray.Add(point);
+
+	CPen* pOldPen =
+		dc.SelectObject( GetDocument( )->GetCurrentPen( ) );
 
 	// Draw a line from the previous detected point in the mouse
 	// drag to the current point.
-	CPen* pOldPen =
-		dc.SelectObject( GetDocument( )->GetCurrentPen( ) );
-	dc.MoveTo( m_ptPrev );
-	dc.LineTo( point );
+
+	if (&m_ptPrev &&
+		(m_ptPrev.x > (int)m_nrestrictWidth || 
+		m_ptPrev.y < -(int)m_nrestrictHeight))
+		dc.MoveTo( point );
+	else
+		dc.MoveTo(m_ptPrev);
+
+	if (point.x <= (int)m_nrestrictWidth && point.y >= -(int)m_nrestrictHeight)
+		dc.LineTo( point );
+
 	dc.SelectObject( pOldPen );
 	m_ptPrev = point;
 	return;
@@ -256,6 +310,7 @@ void CScribbleView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			CClientDC dc(this);
 			OnPrepareDC(&dc);
 			CRect rectInvalid = pStroke->GetBoundingRect();
+
 			InvalidateRect(&rectInvalid);
 			dc.LPtoDP(&rectInvalid);
 			return;
@@ -287,11 +342,11 @@ This lets the view set its mapping mode before OnDraw is called.
 */
 void CScribbleView::OnInitialUpdate()
 {
-	SetScrollSizes( MM_LOENGLISH, GetDocument()->GetDocSize() );
-
 	CScrollView::OnInitialUpdate();
 
 	// TODO: Add your specialized code here and/or call the base class
+
+	SetScrollSizes( MM_LOENGLISH, GetDocument()->GetDocSize() );
 }
 
 void CScribbleView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
@@ -376,4 +431,11 @@ void CScribbleView::PrintPageHeader(CDC*  pDC, CPrintInfo* pInfo, CString& strHe
 	// Subtract from the drawing rectangle the space used by header.
 	y -= 25;     // space 1/4 inch below (top of) line
 	pInfo->m_rectDraw.top += y;
+}
+
+void CScribbleView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	pDC->SetBkColor(RGB(0,0,0));
+	CScrollView::OnPrepareDC(pDC, pInfo);
 }

@@ -80,7 +80,7 @@ Its default value is AFX_IDW_PANE_FIRST, which is the ID of the first pane.
 Because Scribble doesn't pass any values for these, the default values are used.
 */
 
-BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT /*lpcs*/, CCreateContext* pContext)
+BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 {
 	//m_wndSplitter.CreateStatic(this,
 	//	1,  //col
@@ -94,10 +94,10 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT /*lpcs*/, CCreateContext* pConte
 	//	CSize(200, 150), pContext);
 	//return 1; 
 
-	return m_wndSplitter.Create(this,
-								1, 2,       // TODO: adjust the number of rows, columns
-								CSize(10, 10),  // TODO: adjust the minimum pane size
-								pContext);
+	//return m_wndSplitter.Create(this,
+	//							1, 2,       // TODO: adjust the number of rows, columns
+	//							CSize(10, 10),  // TODO: adjust the minimum pane size
+	//							pContext);
 
-	//return CMDIChildWnd::OnCreateClient(lpcs, pContext);
+	return CMDIChildWnd::OnCreateClient(lpcs, pContext);
 }

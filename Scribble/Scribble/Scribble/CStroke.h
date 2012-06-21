@@ -18,6 +18,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 	// Attributes
+public:
 	unsigned int m_nPenWidth;
 public:
 	CArray<CPoint,CPoint> m_pointArray;
@@ -35,7 +36,9 @@ public:
 
 protected:
 public:
-	void FinishStroke(void);
+	void FinishStroke();
+	BOOL DrawStrokeIn(CDC* pDC, int nRestricWidth, int nRestricHeight);
+
 };
 
 
