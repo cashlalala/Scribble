@@ -26,6 +26,13 @@ public:
 // 程式碼實作
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+public:
+	LPCTSTR const m_pszUserSettingSection;
+	LPCTSTR const m_pszThickPenWidth;
+	LPCTSTR const m_pszThinPenWidth;
+	LPCTSTR const m_pszRestrictCanvasWidth;
+	LPCTSTR const m_pszRestrictCanvasHeight;
+	LPCTSTR const m_pszCanvasBkgColor;
 };
 
 extern CScribbleApp theApp;

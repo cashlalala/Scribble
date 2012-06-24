@@ -65,6 +65,7 @@ public:
 	int m_nRestrictWidth;
 	int m_nRestrictHeight;
 	COLORREF m_CurBkColor;
+	virtual void OnCloseDocument();
 };
 
 

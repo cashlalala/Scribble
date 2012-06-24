@@ -94,16 +94,24 @@ void CScribbleDoc::Serialize(CArchive& ar)
 	if (ar.IsStoring())
 	{
 		ar << m_sizeDoc;
-		ar << m_nRestrictWidth;
-		ar << m_nRestrictHeight;
-	    ar << m_CurBkColor;
+		ar << m_bThickPen;
+		ar << m_nPenWidth;
+		//ar << m_nThickWidth;
+		//ar << m_nThinWidth;
+		//ar << m_nRestrictWidth;
+		//ar << m_nRestrictHeight;
+	 //   ar << m_CurBkColor;
 	}
 	else
 	{
 		ar >> m_sizeDoc;
-		ar >> m_nRestrictWidth;
-		ar >> m_nRestrictHeight;
-	    ar >> m_CurBkColor;
+		ar >> m_bThickPen;
+		ar >> m_nPenWidth;
+		//ar >> m_nThickWidth;
+		//ar >> m_nThinWidth;
+		//ar >> m_nRestrictWidth;
+		//ar >> m_nRestrictHeight;
+	 //   ar >> m_CurBkColor;
 	}
 	m_strokeList.Serialize( ar );
 }
@@ -220,4 +228,20 @@ void CScribbleDoc::OnPenColor()
 		m_penCur.DeleteObject();
 		m_penCur.CreatePen( PS_SOLID, m_nPenWidth, RGB(dlg.m_nPenClrRed,dlg.m_nPenClrGreen,dlg.m_nPenClrBlue) );
 	}
+}
+
+void CScribbleDoc::OnCloseDocument()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
+	//   ar << m_CurBkColor;
+	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,m_nThickWidth);
+	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,m_nThinWidth);
+	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
+	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
+	//pApp->WriteP
+	CString sColorString;
+	sColorString.Format(_T("%d"),m_CurBkColor);
+	pApp->WriteProfileStringW(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,sColorString);
+	CDocument::OnCloseDocument();
 }

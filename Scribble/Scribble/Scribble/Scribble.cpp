@@ -28,7 +28,13 @@ END_MESSAGE_MAP()
 
 // CScribbleApp «Øºc
 
-CScribbleApp::CScribbleApp()
+CScribbleApp::CScribbleApp():
+	m_pszUserSettingSection(_T("USER_SETTING")),
+	m_pszThickPenWidth(_T("ThickPenWidth")),
+	m_pszThinPenWidth(_T("ThinPenWidth")),
+	m_pszRestrictCanvasWidth(_T("RestrictCanvasWidth")),
+	m_pszRestrictCanvasHeight(_T("RestrictCanvasHeight")),
+	m_pszCanvasBkgColor(_T("CanvasBkgColor"))
 {
 	EnableHtmlHelp();
 
