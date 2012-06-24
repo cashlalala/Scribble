@@ -18,9 +18,12 @@
 #define IDC_EDIT_PEN_CLR_RED            1007
 #define IDC_EDIT_PEN_CLR_BLUE           1008
 #define IDC_BUTTON1                     1010
+#define IDC_BTN_COLOR_PICKER            1010
 #define IDC_CUR_COLOR                   1011
 #define IDC_EDIT1                       1012
+#define IDC_EDIT_CANV_WIDTH             1012
 #define IDC_EDIT2                       1013
+#define IDC_EDIT_CANV_HEIGHT            1013
 #define ID_32771                        32771
 #define ID_FILE_CLEAR_ALL               32772
 #define ID_32773                        32773

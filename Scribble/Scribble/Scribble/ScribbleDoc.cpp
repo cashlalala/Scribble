@@ -7,6 +7,8 @@
 #include "ScribbleDoc.h"
 #include "CPenWidthsDlg.h"
 #include "CPenClrDlg.h"
+#include "CanvPropDlg.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -33,6 +35,8 @@ END_MESSAGE_MAP()
 
 CScribbleDoc::CScribbleDoc()
 : m_nPenWidth(0)
+, m_nRestrictWidth(0)
+, m_nRestrictHeight(0)
 {
 	// TODO: 在此加入一次建構程式碼
 
@@ -48,6 +52,14 @@ BOOL CScribbleDoc::OnNewDocument()
 		return FALSE;
 
 	InitDocument();
+
+	CCanvPropDlg dlg;
+	if(dlg.DoModal() == IDOK)
+	{
+		m_nRestrictHeight = dlg.m_nCanvHeight;
+		m_nRestrictWidth = dlg.m_nCanvWidth;
+		m_CurBkColor = dlg.m_dwColorToBeSet;
+	}
 	return TRUE;
 }
 
@@ -82,10 +94,16 @@ void CScribbleDoc::Serialize(CArchive& ar)
 	if (ar.IsStoring())
 	{
 		ar << m_sizeDoc;
+		ar << m_nRestrictWidth;
+		ar << m_nRestrictHeight;
+	    ar << m_CurBkColor;
 	}
 	else
 	{
 		ar >> m_sizeDoc;
+		ar >> m_nRestrictWidth;
+		ar >> m_nRestrictHeight;
+	    ar >> m_CurBkColor;
 	}
 	m_strokeList.Serialize( ar );
 }

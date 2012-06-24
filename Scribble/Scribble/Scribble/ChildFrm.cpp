@@ -94,10 +94,10 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	//	CSize(200, 150), pContext);
 	//return 1; 
 
-	//return m_wndSplitter.Create(this,
-	//							1, 2,       // TODO: adjust the number of rows, columns
-	//							CSize(10, 10),  // TODO: adjust the minimum pane size
-	//							pContext);
+	return m_wndSplitter.Create(this,
+								1, 2,       // TODO: adjust the number of rows, columns
+								CSize(10, 10),  // TODO: adjust the minimum pane size
+								pContext);
 
-	return CMDIChildWnd::OnCreateClient(lpcs, pContext);
+	//return CMDIChildWnd::OnCreateClient(lpcs, pContext);
 }

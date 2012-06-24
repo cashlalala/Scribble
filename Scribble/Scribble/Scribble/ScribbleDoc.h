@@ -62,6 +62,9 @@ public:
 	afx_msg void OnUpdatePenThickOrThin(CCmdUI *pCmdUI);
 	afx_msg void OnPenWidths();
 	afx_msg void OnPenColor();
+	int m_nRestrictWidth;
+	int m_nRestrictHeight;
+	COLORREF m_CurBkColor;
 };
 
 

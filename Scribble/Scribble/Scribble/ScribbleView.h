@@ -59,8 +59,6 @@ protected:
 public:
 	void PrintTitlePage(CDC* pDC, CPrintInfo* pInfo);
 	void PrintPageHeader(CDC*  pDC, CPrintInfo* pInfo, CString& strHeader);
-	unsigned int m_nrestrictWidth;
-	unsigned int m_nrestrictHeight;
 	virtual void OnPrepareDC(CDC* pDC, CPrintInfo* pInfo = NULL);
 };
 
