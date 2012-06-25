@@ -1,4 +1,5 @@
 #pragma once
+#include "afxwin.h"
 
 
 // CCanvPropDlg dialog
@@ -18,4 +19,12 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedBtnColorPicker();
+	int m_nCanvHeight;
+	int m_nCanvWidth;
+	CStatic m_CurClr;
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	CBrush m_pCanvBkBrush;
+	COLORREF m_dwColorToBeSet;
 };

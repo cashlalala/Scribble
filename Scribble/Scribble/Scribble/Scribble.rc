@@ -274,10 +274,10 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,197,44,50,14
     LTEXT           "Width",IDC_STATIC,41,21,48,11
     LTEXT           "Height",IDC_STATIC,41,47,48,11
-    PUSHBUTTON      "Color",IDC_BUTTON1,29,72,47,14
+    PUSHBUTTON      "Color",IDC_BTN_COLOR_PICKER,29,72,47,14
     LTEXT           "",IDC_CUR_COLOR,109,72,59,14,WS_BORDER
-    EDITTEXT        IDC_EDIT1,111,18,57,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_EDIT2,111,44,57,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CANV_WIDTH,111,18,57,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CANV_HEIGHT,111,44,57,14,ES_AUTOHSCROLL
 END
 
 
@@ -539,9 +539,9 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHT)
 LANGUAGE 4, 1
 #pragma code_page(950)
-#include "res\Scribble.rc2"  // 非 Microsoft Visual C++ 編輯過的資源
-#include "l.CHT\afxres.rc"          // 標準元件
-#include "l.CHT\afxprint.rc"        // 列印/預覽列印資源
+#include "res\Scribble.rc2"  // ?D Microsoft Visual C++ ?s?e1Lao﹐e·?
+#include "l.CHT\afxres.rc"          // ?D·C?﹐￥o
+#include "l.CHT\afxprint.rc"        // |C|L/1wAy|C|L﹐e·?
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
