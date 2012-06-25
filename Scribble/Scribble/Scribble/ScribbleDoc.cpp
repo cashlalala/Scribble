@@ -37,6 +37,7 @@ CScribbleDoc::CScribbleDoc()
 : m_nPenWidth(0)
 , m_nRestrictWidth(0)
 , m_nRestrictHeight(0)
+, m_bIsBySetting(false)
 {
 	// TODO: 在此加入一次建構程式碼
 
@@ -56,10 +57,26 @@ BOOL CScribbleDoc::OnNewDocument()
 	CCanvPropDlg dlg;
 	if(dlg.DoModal() == IDOK)
 	{
-		m_nRestrictHeight = dlg.m_nCanvHeight;
-		m_nRestrictWidth = dlg.m_nCanvWidth;
-		m_CurBkColor = dlg.m_dwColorToBeSet;
+		if (dlg.IsBySetting())
+		{
+			m_nRestrictHeight = dlg.m_nCanvHeight;
+			m_nRestrictWidth = dlg.m_nCanvWidth;
+			m_CurBkColor = dlg.m_dwColorToBeSet;
+			m_bIsBySetting = true;
+		}
+		else
+		{
+			//HBITMAP hBmp = (HBITMAP)::LoadImage(NULL,dlg.m_szBkImgPath,
+			//									IMAGE_BITMAP,0,0,
+			//									LR_LOADFROMFILE|LR_CREATEDIBSECTION);
+			m_BkImg.LoadBitMapFromFile(dlg.m_szBkImgPath);
+			m_bIsBySetting = false;
+			m_nRestrictHeight = m_BkImg.GetHeightPixel();
+			m_nRestrictWidth = m_BkImg.GetWidthPixel();
+		}
 	}
+	else
+		return FALSE;
 	return TRUE;
 }
 
@@ -72,6 +89,16 @@ BOOL CScribbleDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		return FALSE;
 
 	InitDocument();
+
+	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
+	//CString sTmpBkColor = pApp->GetProfileString(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor);
+	m_CurBkColor = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,0);
+	m_nRestrictHeight = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,0);
+	m_nRestrictWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,0);
+	m_nThickWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,0);
+	m_nThinWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,0);
+	
+
 	return TRUE;
 }
 
@@ -96,23 +123,17 @@ void CScribbleDoc::Serialize(CArchive& ar)
 		ar << m_sizeDoc;
 		ar << m_bThickPen;
 		ar << m_nPenWidth;
-		//ar << m_nThickWidth;
-		//ar << m_nThinWidth;
-		//ar << m_nRestrictWidth;
-		//ar << m_nRestrictHeight;
-	 //   ar << m_CurBkColor;
+		ar << m_BkImg.m_szFilePath;
 	}
 	else
 	{
 		ar >> m_sizeDoc;
 		ar >> m_bThickPen;
 		ar >> m_nPenWidth;
-		//ar >> m_nThickWidth;
-		//ar >> m_nThinWidth;
-		//ar >> m_nRestrictWidth;
-		//ar >> m_nRestrictHeight;
-	 //   ar >> m_CurBkColor;
+		ar >> m_BkImg.m_szFilePath;
 	}
+
+	//m_BkImg.Serialize(ar);
 	m_strokeList.Serialize( ar );
 }
 
@@ -234,14 +255,10 @@ void CScribbleDoc::OnCloseDocument()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
-	//   ar << m_CurBkColor;
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,m_nThickWidth);
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,m_nThinWidth);
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
-	//pApp->WriteP
-	CString sColorString;
-	sColorString.Format(_T("%d"),m_CurBkColor);
-	pApp->WriteProfileStringW(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,sColorString);
+	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,m_CurBkColor);
 	CDocument::OnCloseDocument();
 }

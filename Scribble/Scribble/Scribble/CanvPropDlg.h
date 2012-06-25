@@ -23,8 +23,16 @@ public:
 	afx_msg void OnBnClickedBtnColorPicker();
 	int m_nCanvHeight;
 	int m_nCanvWidth;
-	CStatic m_CurClr;
+	CStatic m_ctlCurColor;
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-	CBrush m_pCanvBkBrush;
+	CBrush m_CanvBkBrush;
 	COLORREF m_dwColorToBeSet;
+	afx_msg void OnBnClickedButtonSelectPath();
+	afx_msg void OnBnClickedButtonClrPath();
+	CString m_szBkImgPath;
+	CEdit m_ctlCanvHeight;
+	CEdit m_ctlCanvWidth;
+	CButton m_ctlCurClrPicker;
+	afx_msg void OnEnChangeEditBkImgPath();
+	BOOL IsBySetting(void);
 };

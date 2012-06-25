@@ -5,6 +5,7 @@
 #pragma once
 #include "afxwin.h"
 #include "CStroke.h"
+#include "ScribbleBitmap.h"
 
 
 class CScribbleDoc : public CDocument
@@ -66,6 +67,8 @@ public:
 	int m_nRestrictHeight;
 	COLORREF m_CurBkColor;
 	virtual void OnCloseDocument();
+	CScribbleBitmap m_BkImg;
+	bool m_bIsBySetting;
 };
 
 

@@ -214,6 +214,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ScribbleBitmap.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ScribbleDoc.cpp"
 				>
 			</File>
@@ -297,6 +301,10 @@
 			</File>
 			<File
 				RelativePath=".\Scribble.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ScribbleBitmap.h"
 				>
 			</File>
 			<File

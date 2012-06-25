@@ -372,46 +372,57 @@ void CScribbleView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 
-	TRACE("<<<<<<<<<<>>>>>>>>>>");
+	//TRACE("<<<<<<<<<<>>>>>>>>>>");
 
-	CRect rcClient;		
+	CRect rcClient;	
 	GetClientRect(rcClient);
+	CRect rcClientLp = rcClient;
 	//TRACE("client rect left:%d, top:%d, right:%d, bottom:%d\n",
 	//	rcClient.left,rcClient.top,rcClient.right,rcClient.bottom);
 	//TRACE("client rect width:%d, height:%d\n",rcClient.Width(),rcClient.Height());
 
-	CDC MemDC;
-	CBitmap MemBitmap;
+	CDC memDC;
+	CBitmap memBitmap;
+	CBitmap* pMemBitmap = NULL;
 
-	MemDC.CreateCompatibleDC(pDC);
-	MemBitmap.CreateCompatibleBitmap(pDC,rcClient.right,rcClient.bottom);
+	memDC.CreateCompatibleDC(pDC);
+	OnPrepareDC(&memDC);
+	memDC.DPtoLP(rcClientLp);
 
-	OnPrepareDC(&MemDC);
+	BITMAP bmpRef;
 
-	CBitmap *pOldBit=MemDC.SelectObject(&MemBitmap);
+	if (GetDocument()->m_bIsBySetting)
+	{
+		pMemBitmap = &memBitmap;
+		//memDC.DPtoLP(&rcClientLp);
+		pMemBitmap->CreateCompatibleBitmap(pDC,rcClientLp.right,rcClientLp.bottom);
+		memDC.FillSolidRect(rcClientLp.left,rcClientLp.top,rcClientLp.right,rcClientLp.bottom,RGB(255,0,255));
 
-	CRect rcClientDp = rcClient;
-	MemDC.LPtoDP(rcClientDp);
+		CRect tmp(0,0,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
+		tmp.InflateRect(1,1);
+		memDC.DPtoLP(&tmp);
+		//memDC.FillSolidRect(&tmp,GetDocument()->m_CurBkColor);
+		memDC.FillSolidRect(rcClientLp.left,rcClientLp.top,GetDocument()->m_nRestrictWidth,-GetDocument()->m_nRestrictHeight,GetDocument()->m_CurBkColor);
+	}
+	else
+	{
+		GetDocument()->m_BkImg.LoadBitMapFromFile();
+		pMemBitmap = &GetDocument()->m_BkImg;
+		pMemBitmap->GetBitmap(&bmpRef);
+	}
 
-	MemDC.FillSolidRect(rcClient.left,rcClient.top,rcClient.right,-rcClient.bottom,RGB(255,255,255));
+	CBitmap *pOldBit=memDC.SelectObject(pMemBitmap);
 
-	CRect tmp(0,0,GetDocument()->m_nRestrictWidth,-GetDocument()->m_nRestrictHeight);
-	tmp.InflateRect(1,-1);
-	//TRACE("tmp rect left:%d, top:%d, right:%d, bottom:%d\n",
-	//	tmp.left,tmp.top,tmp.right,tmp.bottom);
-	//MemDC.LPtoDP(&tmp);
-	//TRACE("tmp rect in DP left:%d, top:%d, right:%d, bottom:%d\n",
-	//	tmp.left,tmp.top,tmp.right,tmp.bottom);
-	MemDC.FillSolidRect(&tmp,GetDocument()->m_CurBkColor);
 
 	//// Get the invalidated rectangle of the view, or in the case
 	//// of printing, the clipping region of the printer DC.
 	CRect rectClip;
 	CRect rectStroke;
-	MemDC.GetClipBox(&rectClip);
+	memDC.GetClipBox(&rectClip);
 
-	MemDC.LPtoDP(&rectClip);
+	memDC.LPtoDP(&rectClip);
 	rectClip.InflateRect(1, 1); // avoid rounding to nothing
+	//memDC.DPtoLP(&rectClip);
 
 	// The view delegates the drawing of individual strokes to
 	// CStroke::DrawStroke( ).
@@ -423,20 +434,34 @@ void CScribbleView::OnDraw(CDC* pDC)
 		CStroke* pStroke = strokeList.GetNext(pos);
 		rectStroke = pStroke->GetBoundingRect();
 
-		MemDC.LPtoDP(&rectStroke);
+		//memDC.DPtoLP(&rectStroke);
+		memDC.LPtoDP(&rectStroke);
 		rectStroke.InflateRect(1, 1);
 
 		if (!rectStroke.IntersectRect(&rectStroke, &rectClip))
 			continue;
 		//pStroke->DrawStroke( pDC );
-		pStroke->DrawStrokeIn(&MemDC,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
+		pStroke->DrawStrokeIn(&memDC,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
 	}
 
-	//pDC->BitBlt(rcClientDp.left,rcClientDp.top,rcClientDp.right,rcClientDp.bottom,&MemDC,0,0,SRCCOPY);	
-	pDC->BitBlt(rcClient.left,-rcClient.top,rcClient.right,-rcClient.bottom,&MemDC,rcClient.left,-rcClient.top,SRCCOPY);	
+	pDC->BitBlt(rcClientLp.left,rcClientLp.top,rcClientLp.right,rcClientLp.bottom,&memDC,0,0,SRCCOPY);	
 
-	MemBitmap.DeleteObject();
-	MemDC.DeleteDC();
+	//if (GetDocument()->m_bIsBySetting)
+	//{
+	//	pDC->BitBlt(rcClientLp.left,rcClientLp.top,rcClientLp.right,rcClientLp.bottom,&memDC,0,0,SRCCOPY);	
+	//}
+	//else
+	//{
+	//	CRect testRect(0,0,bmpRef.bmWidth,bmpRef.bmHeight);
+	//	memDC.DPtoLP(testRect);
+	//	pDC->BitBlt(testRect.left,testRect.top,testRect.right,testRect.bottom,&memDC,0,0,SRCCOPY);	
+	//}
+	
+	
+	pDC->SelectObject(pOldBit);
+
+	//MemBitmap->DeleteObject();
+	memDC.DeleteDC();
 }
 
 
