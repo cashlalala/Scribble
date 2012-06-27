@@ -223,13 +223,6 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 		return;    // If this window (view) didn't capture the
 	// mouse, the user isn't drawing in this window.
 
-	//To avoid button up right after button down.
-	//if (point.x > GetDocument()->m_nRestrictWidth
-	//	|| point.y > GetDocument()->m_nRestrictHeight)
-	//{
-	//	return;
-	//}
-
 	CScribbleDoc* pDoc = GetDocument();
 	CClientDC dc( this );
 	// CScrollView changes the viewport origin and mapping mode.
@@ -237,6 +230,14 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 	// to logical coordinates, such as are stored in the document.
 	OnPrepareDC(&dc);  // set up mapping mode and viewport origin
 	dc.DPtoLP(&point);
+
+	//To avoid button up right after button down.
+	if (point.x > GetDocument()->m_nRestrictWidth
+		|| point.y > GetDocument()->m_nRestrictHeight)
+	{
+		return;
+	}
+
 
 	CPen* pOldPen = dc.SelectObject( pDoc->GetCurrentPen( ) );
 	//if (m_ptPrev.x!=point.x && m_ptPrev.y!=point.y)

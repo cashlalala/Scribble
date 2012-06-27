@@ -12,7 +12,7 @@ IMPLEMENT_SERIAL(CStroke,CObject,3)
 CStroke::CStroke()
 : m_nPenWidth(0)
 {
-
+	m_rgbPenColor = RGB(0,0,0);
 }
 
 CStroke::~CStroke()
@@ -29,8 +29,9 @@ END_MESSAGE_MAP()
 
 
 
-CStroke::CStroke(UINT nPenWidth)
+CStroke::CStroke(UINT nPenWidth,COLORREF dwCurColor)
 {
+	m_rgbPenColor = dwCurColor;
 	m_nPenWidth = nPenWidth;
 	m_rectBounding.SetRectEmpty();
 }
@@ -39,7 +40,7 @@ CStroke::CStroke(UINT nPenWidth)
 BOOL CStroke::DrawStroke( CDC* pDC )
 {
 	CPen penStroke;
-	if( !penStroke.CreatePen(PS_SOLID, m_nPenWidth, RGB(0,0,0)))
+	if( !penStroke.CreatePen(PS_SOLID, m_nPenWidth, m_rgbPenColor))
 		return FALSE;
 
 	CPen* pOldPen = pDC->SelectObject( &penStroke );
@@ -59,6 +60,7 @@ void CStroke::Serialize(CArchive& ar)
 	{
 		ar << m_rectBounding;
 		ar << (WORD)m_nPenWidth;
+		ar << m_rgbPenColor;
 		m_pointArray.Serialize( ar );
 	}
 	else
@@ -67,6 +69,7 @@ void CStroke::Serialize(CArchive& ar)
 		WORD w;
 		ar >> w;
 		m_nPenWidth = w;
+		ar >> m_rgbPenColor;
 		m_pointArray.Serialize( ar );
 	}
 }
@@ -102,7 +105,7 @@ void CStroke::FinishStroke(void)
 BOOL CStroke::DrawStrokeIn( CDC* pDC, int nRestricWidth, int nRestricHeight )
 {
 	CPen penStroke;
-	if( !penStroke.CreatePen(PS_SOLID, m_nPenWidth, RGB(0,0,0)))
+	if( !penStroke.CreatePen(PS_SOLID, m_nPenWidth, m_rgbPenColor))
 		return FALSE;
 
 	CPen* pOldPen = pDC->SelectObject( &penStroke );

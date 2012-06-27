@@ -3,6 +3,8 @@
 #include "stdafx.h"
 
 #include "ChildFrm.h"
+#include "resource.h"
+#include "ScribbleDoc.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -14,6 +16,7 @@
 IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWnd)
 
 BEGIN_MESSAGE_MAP(CChildFrame, CMDIChildWnd)
+//	ON_UPDATE_COMMAND_UI(ID_PEN_THICK_OR_THIN, &CChildFrame::OnUpdatePenThickOrThin)
 END_MESSAGE_MAP()
 
 
@@ -101,3 +104,10 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 
 	//return CMDIChildWnd::OnCreateClient(lpcs, pContext);
 }
+
+//void CChildFrame::OnUpdatePenThickOrThin(CCmdUI *pCmdUI)
+//{
+//	// TODO: Add your command update UI handler code here
+//	CScribbleDoc* pCurDoc = (CScribbleDoc*) GetActiveView()->GetDocument();
+//	pCmdUI->SetCheck( pCurDoc->m_bThickPen );
+//}

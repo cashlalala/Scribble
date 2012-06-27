@@ -88,19 +88,22 @@ BOOL CScribbleDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
 
-	InitDocument();
+	//InitDocument();
 
+	/*
+	* Serialization is implemented in CDocument::OnOpenDocument(lpszPathName)
+	* most of member var is initialized via the serialization function except
+	* the current pen
+	*/
 	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
 
-	pApp->DelRegTree()
-	//CString sTmpBkColor = pApp->GetProfileString(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor);
+	m_penCur.CreatePen(PS_SOLID,m_nPenWidth,m_rgbPenCurColor);
 	m_CurBkColor = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,0);
 	m_nRestrictHeight = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,0);
 	m_nRestrictWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,0);
 	m_nThickWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,0);
 	m_nThinWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,0);
 	
-
 	return TRUE;
 }
 
@@ -171,7 +174,7 @@ void CScribbleDoc::InitDocument(void)
 {
 	m_nPenWidth = 2;  // Default 2-pixel pen width
 	// Solid black pen
-	m_penCur.CreatePen( PS_SOLID, m_nPenWidth, RGB(0,0,0) );
+	m_penCur.CreatePen( PS_SOLID, m_nPenWidth, m_rgbPenCurColor );
 	m_bThickPen = FALSE;
 	m_nThinWidth = 2;     // Default thin pen is 2 pixels wide
 	m_nThickWidth = 5;    // Default thick pen is 5 pixels wide
@@ -181,11 +184,19 @@ void CScribbleDoc::InitDocument(void)
 
 CStroke* CScribbleDoc::NewStroke(void)
 {
-	CStroke* pStrokeItem = new CStroke(m_nPenWidth);
+	CStroke* pStrokeItem = new CStroke(m_nPenWidth,m_rgbPenCurColor);
 	m_strokeList.AddTail( pStrokeItem );
 	SetModifiedFlag( );    // Mark document as modified
 	// to confirm File Close.
 	return pStrokeItem;
+}
+
+void CScribbleDoc::ReplacePen(void)
+{
+	m_nPenWidth = m_bThickPen ? m_nThickWidth : m_nThinWidth;
+	// Change the current pen to reflect the new width.
+	m_penCur.DeleteObject( );
+	m_penCur.CreatePen( PS_SOLID, m_nPenWidth, m_rgbPenCurColor );
 }
 
 void CScribbleDoc::OnEditClearAll()
@@ -202,14 +213,6 @@ void CScribbleDoc::OnPenThickOrThin()
 
 	// Change the current pen to reflect the new width.
 	ReplacePen( );
-}
-
-void CScribbleDoc::ReplacePen(void)
-{
-	m_nPenWidth = m_bThickPen ? m_nThickWidth : m_nThinWidth;
-	// Change the current pen to reflect the new width.
-	m_penCur.DeleteObject( );
-	m_penCur.CreatePen( PS_SOLID, m_nPenWidth, RGB(0,0,0) );
 }
 
 void CScribbleDoc::OnUpdateEditC(CCmdUI *pCmdUI)
@@ -251,7 +254,8 @@ void CScribbleDoc::OnPenColor()
 	if (dlg.DoModal() == IDOK)
 	{
 		m_penCur.DeleteObject();
-		m_penCur.CreatePen( PS_SOLID, m_nPenWidth, RGB(dlg.m_nPenClrRed,dlg.m_nPenClrGreen,dlg.m_nPenClrBlue) );
+		m_rgbPenCurColor = RGB(dlg.m_nPenClrRed,dlg.m_nPenClrGreen,dlg.m_nPenClrBlue);
+		m_penCur.CreatePen( PS_SOLID, m_nPenWidth, m_rgbPenCurColor );
 	}
 }
 
@@ -259,10 +263,21 @@ void CScribbleDoc::OnCloseDocument()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
+
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,m_nThickWidth);
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,m_nThinWidth);
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
 	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,m_CurBkColor);
+
+	//CString sDocName;
+	//this->GetDocTemplate()->GetDocString(sDocName,CDocTemplate::docName);
+	//sDocName = pApp->m_pszUserSettingSection + "\\" + sDocName;
+
+	//pApp->WriteProfileInt(sDocName,pApp->m_pszThickPenWidth,m_nThickWidth);
+	//pApp->WriteProfileInt(sDocName,pApp->m_pszThinPenWidth,m_nThinWidth);
+	//pApp->WriteProfileInt(sDocName,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
+	//pApp->WriteProfileInt(sDocName,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
+	//pApp->WriteProfileInt(sDocName,pApp->m_pszCanvasBkgColor,m_CurBkColor);
 	CDocument::OnCloseDocument();
 }

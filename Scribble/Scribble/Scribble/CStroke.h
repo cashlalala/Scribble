@@ -9,7 +9,7 @@ class CStroke : public CWnd
 	DECLARE_SERIAL(CStroke)
 
 public:
-	CStroke(UINT nPenWidth);
+	CStroke(UINT nPenWidth,COLORREF dwCurColor);
 	CStroke();
 	virtual ~CStroke();
 
@@ -39,6 +39,7 @@ public:
 	void FinishStroke();
 	BOOL DrawStrokeIn(CDC* pDC, int nRestricWidth, int nRestricHeight);
 
+	COLORREF m_rgbPenColor;
 };
 
 

@@ -33,4 +33,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	CSplitterWnd m_wndSplitter;
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
+public:
+//	afx_msg void OnUpdatePenThickOrThin(CCmdUI *pCmdUI);
 };

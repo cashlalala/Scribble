@@ -69,6 +69,7 @@ public:
 	virtual void OnCloseDocument();
 	CScribbleBitmap m_BkImg;
 	bool m_bIsBySetting;
+	COLORREF m_rgbPenCurColor;
 };
 
 
