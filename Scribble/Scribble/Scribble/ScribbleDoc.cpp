@@ -123,6 +123,7 @@ void CScribbleDoc::Serialize(CArchive& ar)
 		ar << m_sizeDoc;
 		ar << m_bThickPen;
 		ar << m_nPenWidth;
+		ar << m_bIsBySetting;
 		ar << m_BkImg.m_szFilePath;
 	}
 	else
@@ -130,10 +131,11 @@ void CScribbleDoc::Serialize(CArchive& ar)
 		ar >> m_sizeDoc;
 		ar >> m_bThickPen;
 		ar >> m_nPenWidth;
+		ar >> m_bIsBySetting;
 		ar >> m_BkImg.m_szFilePath;
+		if (!m_BkImg.m_szFilePath.IsEmpty())
+			m_BkImg.LoadBitMapFromFile();
 	}
-
-	//m_BkImg.Serialize(ar);
 	m_strokeList.Serialize( ar );
 }
 

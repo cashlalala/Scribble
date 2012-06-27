@@ -12,6 +12,7 @@
 #define new DEBUG_NEW
 #endif
 
+#define ABS(x) (x>0)?x:-x
 
 // CScribbleView
 
@@ -25,6 +26,7 @@ BEGIN_MESSAGE_MAP(CScribbleView, CScrollView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
+	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 // CScribbleView ´ÿ∫c/∏—∫c
@@ -222,11 +224,11 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 	// mouse, the user isn't drawing in this window.
 
 	//To avoid button up right after button down.
-	if (point.x > GetDocument()->m_nRestrictWidth
-		|| point.y > GetDocument()->m_nRestrictHeight)
-	{
-		return;
-	}
+	//if (point.x > GetDocument()->m_nRestrictWidth
+	//	|| point.y > GetDocument()->m_nRestrictHeight)
+	//{
+	//	return;
+	//}
 
 	CScribbleDoc* pDoc = GetDocument();
 	CClientDC dc( this );
@@ -237,11 +239,18 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 	dc.DPtoLP(&point);
 
 	CPen* pOldPen = dc.SelectObject( pDoc->GetCurrentPen( ) );
-	if (m_ptPrev.x!=point.x && m_ptPrev.y!=point.y)
-	{
-		dc.MoveTo( m_ptPrev );
-		dc.LineTo( point );
-	}
+	//if (m_ptPrev.x!=point.x && m_ptPrev.y!=point.y)
+	//{
+	//	dc.MoveTo( m_ptPrev );
+	//	dc.LineTo( point );
+	//}
+	if (&m_ptPrev &&
+		(m_ptPrev.x > GetDocument()->m_nRestrictWidth || 
+		m_ptPrev.y > GetDocument()->m_nRestrictHeight))
+		dc.MoveTo( point );
+	else
+		dc.MoveTo(m_ptPrev);
+	dc.LineTo( point );
 
 	dc.SelectObject( pOldPen );
 	m_pStrokeCur->m_pointArray.Add(point);
@@ -289,12 +298,12 @@ void CScribbleView::OnMouseMove(UINT nFlags, CPoint point)
 
 	if (&m_ptPrev &&
 		(m_ptPrev.x > GetDocument()->m_nRestrictWidth || 
-		m_ptPrev.y < -GetDocument()->m_nRestrictHeight))
+		m_ptPrev.y > GetDocument()->m_nRestrictHeight))
 		dc.MoveTo( point );
 	else
 		dc.MoveTo(m_ptPrev);
 
-	if (point.x <= GetDocument()->m_nRestrictWidth && point.y >= -GetDocument()->m_nRestrictHeight)
+	if (point.x <= GetDocument()->m_nRestrictWidth && point.y <= GetDocument()->m_nRestrictHeight)
 		dc.LineTo( point );
 
 	dc.SelectObject( pOldPen );
@@ -353,8 +362,23 @@ void CScribbleView::OnInitialUpdate()
 	CScrollView::OnInitialUpdate();
 
 	// TODO: Add your specialized code here and/or call the base class
-	SetScrollSizes( MM_LOENGLISH, GetDocument()->GetDocSize() );
+	SetScrollSizes( MM_TEXT, GetDocument()->GetDocSize() );
 	
+}
+
+void CScribbleView::DocToClient(CPoint& point)
+{
+	CClientDC dc(this);
+	OnPrepareDC(&dc, NULL);
+	dc.LPtoDP(&point);
+}
+
+void CScribbleView::DocToClient(CRect& rect)
+{
+	CClientDC dc(this);
+	OnPrepareDC(&dc, NULL);
+	dc.LPtoDP(rect);
+	rect.NormalizeRect();
 }
 
 // CScribbleView ¥y√∏
@@ -371,103 +395,121 @@ void CScribbleView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+	TRACE("<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>\n");
+	CDC						memDC;
+	CDC*					pDrawDC = pDC;
+	CBitmap					memBitmap;
+	CBitmap*				pMemBitmap = NULL;
+	BITMAP					bmpRef;
+	CBitmap*				pOldBit = NULL;
+	CRect					rectClip;
+	pDC->GetClipBox(&rectClip);
+	TRACE("0 rectClip >> l:%d,t:%d,r:%d,b:%d\n",rectClip.left, rectClip.top,rectClip.right,rectClip.bottom);
+	TRACE("0 rectClip >> w:%d,h:%d\n",rectClip.Width(), rectClip.Height());
+	CRect					rect = rectClip;
+	DocToClient(rect);
 
-	//TRACE("<<<<<<<<<<>>>>>>>>>>");
-
-	CRect rcClient;	
-	GetClientRect(rcClient);
-	CRect rcClientLp = rcClient;
-	//TRACE("client rect left:%d, top:%d, right:%d, bottom:%d\n",
-	//	rcClient.left,rcClient.top,rcClient.right,rcClient.bottom);
-	//TRACE("client rect width:%d, height:%d\n",rcClient.Width(),rcClient.Height());
-
-	CDC memDC;
-	CBitmap memBitmap;
-	CBitmap* pMemBitmap = NULL;
-
-	memDC.CreateCompatibleDC(pDC);
-	OnPrepareDC(&memDC);
-	memDC.DPtoLP(rcClientLp);
-
-	BITMAP bmpRef;
-
-	if (GetDocument()->m_bIsBySetting)
+	if (memDC.CreateCompatibleDC(pDC))
 	{
+		pDrawDC = &memDC;
 		pMemBitmap = &memBitmap;
-		//memDC.DPtoLP(&rcClientLp);
-		pMemBitmap->CreateCompatibleBitmap(pDC,rcClientLp.right,rcClientLp.bottom);
-		memDC.FillSolidRect(rcClientLp.left,rcClientLp.top,rcClientLp.right,rcClientLp.bottom,RGB(255,0,255));
+		if (pMemBitmap->CreateCompatibleBitmap(pDC,rect.Width(), rect.Height()))
+		{
+			pDrawDC = &memDC;
+			OnPrepareDC(&memDC);
 
-		CRect tmp(0,0,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
-		tmp.InflateRect(1,1);
-		memDC.DPtoLP(&tmp);
-		//memDC.FillSolidRect(&tmp,GetDocument()->m_CurBkColor);
-		memDC.FillSolidRect(rcClientLp.left,rcClientLp.top,GetDocument()->m_nRestrictWidth,-GetDocument()->m_nRestrictHeight,GetDocument()->m_CurBkColor);
+			TRACE("1 memDC.GetViewportOrg():%d,%d\n",memDC.GetViewportOrg().x,memDC.GetViewportOrg().y);
+			TRACE("1 pDC->GetViewportOrg():%d,%d\n",pDC->GetViewportOrg().x,pDC->GetViewportOrg().y);
+			memDC.OffsetViewportOrg(-rect.left, -rect.top);
+			TRACE("2 memDC.GetViewportOrg():%d,%d\n",memDC.GetViewportOrg().x,memDC.GetViewportOrg().y);
+			TRACE("2 pDC->GetViewportOrg():%d,%d\n",pDC->GetViewportOrg().x,pDC->GetViewportOrg().y);
+
+			pOldBit = memDC.SelectObject(pMemBitmap);
+
+			memDC.SetBrushOrg(rect.left % 8, rect.top % 8);	
+
+			CBrush brushBkClient;
+			CBrush brushBkgd;
+			CRect rcBkCanv;
+	
+			/*
+			* Fill Background
+			*/
+			brushBkClient.CreateSolidBrush(RGB(255,255,255));
+			brushBkClient.UnrealizeObject();			
+			memDC.FillRect(&rectClip, &brushBkClient);	
+			
+
+			/*
+			* Fill drawable area
+			*/
+			if (GetDocument()->m_bIsBySetting)
+			{
+				//CRect rcBkCanv(CPoint(0,0),CSize(GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight));
+				rcBkCanv.SetRect(0,0,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
+				rcBkCanv.InflateRect(1,1);
+				brushBkgd.CreateSolidBrush(GetDocument()->m_CurBkColor);
+			}
+			else
+			{
+				GetDocument()->m_BkImg.GetBitmap(&bmpRef);
+				//CRect tmp(CPoint(0,0),CSize(bmpRef.bmWidth,bmpRef.bmHeight));//X
+				rcBkCanv.SetRect(0,0,bmpRef.bmWidth,bmpRef.bmHeight);
+				brushBkgd.CreatePatternBrush(&GetDocument()->m_BkImg);
+			}
+
+			brushBkgd.UnrealizeObject();
+			memDC.FillRect(&rcBkCanv,&brushBkgd);
+
+			memDC.IntersectClipRect(rectClip);
+		}
 	}
-	else
-	{
-		GetDocument()->m_BkImg.LoadBitMapFromFile();
-		pMemBitmap = &GetDocument()->m_BkImg;
-		pMemBitmap->GetBitmap(&bmpRef);
-	}
-
-	CBitmap *pOldBit=memDC.SelectObject(pMemBitmap);
-
-
-	//// Get the invalidated rectangle of the view, or in the case
-	//// of printing, the clipping region of the printer DC.
-	CRect rectClip;
-	CRect rectStroke;
-	memDC.GetClipBox(&rectClip);
-
-	memDC.LPtoDP(&rectClip);
-	rectClip.InflateRect(1, 1); // avoid rounding to nothing
-	//memDC.DPtoLP(&rectClip);
-
-	// The view delegates the drawing of individual strokes to
-	// CStroke::DrawStroke( ).
+	
+	/*
+	* Fill strokes
+	*/
 	CTypedPtrList<CObList, CStroke*>& strokeList =
 		pDoc->m_strokeList;
 	POSITION pos = strokeList.GetHeadPosition( );
 	while (pos != NULL)
 	{
 		CStroke* pStroke = strokeList.GetNext(pos);
-		rectStroke = pStroke->GetBoundingRect();
+		CRect rectStroke = pStroke->GetBoundingRect();
 
-		//memDC.DPtoLP(&rectStroke);
-		memDC.LPtoDP(&rectStroke);
-		rectStroke.InflateRect(1, 1);
+		//DocToClient(rectStroke);
+		//rectStroke.InflateRect(1, 1);
+		//if (!rectStroke.IntersectRect(&rectStroke, &rectClip))
+		//	pDrawDC->IntersectClipRect(&rectStroke);
 
-		if (!rectStroke.IntersectRect(&rectStroke, &rectClip))
-			continue;
-		//pStroke->DrawStroke( pDC );
-		pStroke->DrawStrokeIn(&memDC,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
+		pStroke->DrawStrokeIn(pDrawDC,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
 	}
 
-	pDC->BitBlt(rcClientLp.left,rcClientLp.top,rcClientLp.right,rcClientLp.bottom,&memDC,0,0,SRCCOPY);	
-
-	//if (GetDocument()->m_bIsBySetting)
-	//{
-	//	pDC->BitBlt(rcClientLp.left,rcClientLp.top,rcClientLp.right,rcClientLp.bottom,&memDC,0,0,SRCCOPY);	
-	//}
-	//else
-	//{
-	//	CRect testRect(0,0,bmpRef.bmWidth,bmpRef.bmHeight);
-	//	memDC.DPtoLP(testRect);
-	//	pDC->BitBlt(testRect.left,testRect.top,testRect.right,testRect.bottom,&memDC,0,0,SRCCOPY);	
-	//}
-	
-	
-	pDC->SelectObject(pOldBit);
-
-	//MemBitmap->DeleteObject();
-	memDC.DeleteDC();
+	if (pDrawDC != pDC)
+	{
+		pDC->SetViewportOrg(0, 0);
+		pDC->SetWindowOrg(0,0);
+		pDC->SetMapMode(MM_TEXT);
+		memDC.SetViewportOrg(0, 0);
+		memDC.SetWindowOrg(0,0);
+		memDC.SetMapMode(MM_TEXT);
+		TRACE("3 rectClip in Client >> l:%d,t:%d,r:%d,b:%d\n",rect.left, rect.top,rect.right,rect.bottom);
+		TRACE("3 rectClip in Client >> w:%d,h:%d\n",rect.Width(), rect.Height());
+		pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(),
+			&memDC, 0, 0, SRCCOPY);
+		if(pOldBit)
+			memDC.SelectObject(pOldBit);
+	}	
 }
 
 
 void CScribbleView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	pDC->SetMapMode(MM_LOENGLISH);
 	CScrollView::OnPrepareDC(pDC, pInfo);
+}
+
+BOOL CScribbleView::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: Add your message handler code here and/or call default
+	return CScrollView::OnEraseBkgnd(pDC);
 }

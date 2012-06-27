@@ -60,6 +60,9 @@ public:
 	void PrintTitlePage(CDC* pDC, CPrintInfo* pInfo);
 	void PrintPageHeader(CDC*  pDC, CPrintInfo* pInfo, CString& strHeader);
 	virtual void OnPrepareDC(CDC* pDC, CPrintInfo* pInfo = NULL);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	void DocToClient(CRect& rect);
+	void DocToClient(CPoint& point);
 };
 
 #ifndef _DEBUG  // ScribbleView.cpp ¤¤ªº°»¿ùª©¥»
