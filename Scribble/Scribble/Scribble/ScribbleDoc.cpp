@@ -91,6 +91,8 @@ BOOL CScribbleDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	InitDocument();
 
 	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
+
+	pApp->DelRegTree()
 	//CString sTmpBkColor = pApp->GetProfileString(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor);
 	m_CurBkColor = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,0);
 	m_nRestrictHeight = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,0);

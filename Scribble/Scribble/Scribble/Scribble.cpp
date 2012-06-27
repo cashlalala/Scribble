@@ -29,7 +29,7 @@ END_MESSAGE_MAP()
 // CScribbleApp «Øºc
 
 CScribbleApp::CScribbleApp():
-	m_pszUserSettingSection(_T("Settings")),
+	m_pszUserSettingSection(_T("DocSettings")),
 	m_pszThickPenWidth(_T("ThickPenWidth")),
 	m_pszThinPenWidth(_T("ThinPenWidth")),
 	m_pszRestrictCanvasWidth(_T("RestrictCanvasWidth")),
