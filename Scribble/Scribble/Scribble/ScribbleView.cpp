@@ -20,9 +20,9 @@ IMPLEMENT_DYNCREATE(CScribbleView, CScrollView)
 
 BEGIN_MESSAGE_MAP(CScribbleView, CScrollView)
 	// ¼Ð·Ç¦C¦L©R¥O
-	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_COMMAND(ID_FILE_PRINT, &CScrollView::OnFilePrint)
+	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CScrollView::OnFilePrint)
+	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CScrollView::OnFilePrintPreview)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
@@ -400,30 +400,24 @@ void CScribbleView::OnDraw(CDC* pDC)
 	CDC						memDC;
 	CDC*					pDrawDC = pDC;
 	CBitmap					memBitmap;
-	CBitmap*				pMemBitmap = NULL;
+	
 	BITMAP					bmpRef;
 	CBitmap*				pOldBit = NULL;
 	CRect					rectClip;
 	pDC->GetClipBox(&rectClip);
-	TRACE("0 rectClip >> l:%d,t:%d,r:%d,b:%d\n",rectClip.left, rectClip.top,rectClip.right,rectClip.bottom);
-	TRACE("0 rectClip >> w:%d,h:%d\n",rectClip.Width(), rectClip.Height());
 	CRect					rect = rectClip;
 	DocToClient(rect);
 
 	if (memDC.CreateCompatibleDC(pDC))
 	{
 		pDrawDC = &memDC;
-		pMemBitmap = &memBitmap;
+		CBitmap* pMemBitmap = &memBitmap;
 		if (pMemBitmap->CreateCompatibleBitmap(pDC,rect.Width(), rect.Height()))
 		{
-			pDrawDC = &memDC;
 			OnPrepareDC(&memDC);
+			pDrawDC = &memDC;
 
-			TRACE("1 memDC.GetViewportOrg():%d,%d\n",memDC.GetViewportOrg().x,memDC.GetViewportOrg().y);
-			TRACE("1 pDC->GetViewportOrg():%d,%d\n",pDC->GetViewportOrg().x,pDC->GetViewportOrg().y);
 			memDC.OffsetViewportOrg(-rect.left, -rect.top);
-			TRACE("2 memDC.GetViewportOrg():%d,%d\n",memDC.GetViewportOrg().x,memDC.GetViewportOrg().y);
-			TRACE("2 pDC->GetViewportOrg():%d,%d\n",pDC->GetViewportOrg().x,pDC->GetViewportOrg().y);
 
 			pOldBit = memDC.SelectObject(pMemBitmap);
 
@@ -439,30 +433,34 @@ void CScribbleView::OnDraw(CDC* pDC)
 			brushBkClient.CreateSolidBrush(RGB(255,255,255));
 			brushBkClient.UnrealizeObject();			
 			memDC.FillRect(&rectClip, &brushBkClient);	
-			
+
+			memDC.IntersectClipRect(rectClip);
 
 			/*
 			* Fill drawable area
 			*/
 			if (GetDocument()->m_bIsBySetting)
 			{
-				//CRect rcBkCanv(CPoint(0,0),CSize(GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight));
 				rcBkCanv.SetRect(0,0,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
 				rcBkCanv.InflateRect(1,1);
 				brushBkgd.CreateSolidBrush(GetDocument()->m_CurBkColor);
+				memDC.FillRect(&rcBkCanv,&brushBkgd);
 			}
 			else
 			{
-				GetDocument()->m_BkImg.GetBitmap(&bmpRef);
-				//CRect tmp(CPoint(0,0),CSize(bmpRef.bmWidth,bmpRef.bmHeight));//X
-				rcBkCanv.SetRect(0,0,bmpRef.bmWidth,bmpRef.bmHeight);
-				brushBkgd.CreatePatternBrush(&GetDocument()->m_BkImg);
+				CDC dcBmp;
+				if (dcBmp.CreateCompatibleDC(pDC))
+				{
+					CBitmap* oldBitmap = dcBmp.SelectObject(&GetDocument()->m_BkImg);					
+					GetDocument()->m_BkImg.GetBitmap(&bmpRef);
+					pDrawDC->BitBlt(0,0, bmpRef.bmWidth, bmpRef.bmHeight, &dcBmp, 0,0, SRCCOPY);
+					rcBkCanv.SetRect(0,0,bmpRef.bmWidth,bmpRef.bmHeight);
+					dcBmp.SelectObject(oldBitmap);
+					dcBmp.DeleteDC();
+				}			
 			}
-
-			brushBkgd.UnrealizeObject();
-			memDC.FillRect(&rcBkCanv,&brushBkgd);
-
-			memDC.IntersectClipRect(rectClip);
+				
+			memDC.IntersectClipRect(&rcBkCanv);
 		}
 	}
 	
@@ -493,8 +491,8 @@ void CScribbleView::OnDraw(CDC* pDC)
 		memDC.SetViewportOrg(0, 0);
 		memDC.SetWindowOrg(0,0);
 		memDC.SetMapMode(MM_TEXT);
-		TRACE("3 rectClip in Client >> l:%d,t:%d,r:%d,b:%d\n",rect.left, rect.top,rect.right,rect.bottom);
-		TRACE("3 rectClip in Client >> w:%d,h:%d\n",rect.Width(), rect.Height());
+		//TRACE("3 rectClip in Client >> l:%d,t:%d,r:%d,b:%d\n",rect.left, rect.top,rect.right,rect.bottom);
+		//TRACE("3 rectClip in Client >> w:%d,h:%d\n",rect.Width(), rect.Height());
 		pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(),
 			&memDC, 0, 0, SRCCOPY);
 		if(pOldBit)
@@ -512,5 +510,6 @@ void CScribbleView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 BOOL CScribbleView::OnEraseBkgnd(CDC* pDC)
 {
 	// TODO: Add your message handler code here and/or call default
-	return CScrollView::OnEraseBkgnd(pDC);
+	//return CScrollView::OnEraseBkgnd(pDC);
+	return TRUE;
 }
