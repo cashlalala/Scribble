@@ -97,12 +97,21 @@ BOOL CScribbleDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	*/
 	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
 
+	CString sRegistryName = CString(pApp->m_pszUserSettingSection) + _T("\\") + this->GetDocName(lpszPathName);
+
 	m_penCur.CreatePen(PS_SOLID,m_nPenWidth,m_rgbPenCurColor);
-	m_CurBkColor = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,0);
-	m_nRestrictHeight = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,0);
-	m_nRestrictWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,0);
-	m_nThickWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,0);
-	m_nThinWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,0);
+	m_CurBkColor = pApp->GetProfileInt(sRegistryName,pApp->m_pszCanvasBkgColor,0);
+	m_nRestrictHeight = pApp->GetProfileInt(sRegistryName,pApp->m_pszRestrictCanvasHeight,0);
+	m_nRestrictWidth = pApp->GetProfileInt(sRegistryName,pApp->m_pszRestrictCanvasWidth,0);
+	m_nThickWidth = pApp->GetProfileInt(sRegistryName,pApp->m_pszThickPenWidth,0);
+	m_nThinWidth = pApp->GetProfileInt(sRegistryName,pApp->m_pszThinPenWidth,0);
+
+	//m_penCur.CreatePen(PS_SOLID,m_nPenWidth,m_rgbPenCurColor);
+	//m_CurBkColor = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,0);
+	//m_nRestrictHeight = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,0);
+	//m_nRestrictWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,0);
+	//m_nThickWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,0);
+	//m_nThinWidth = pApp->GetProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,0);
 	
 	return TRUE;
 }
@@ -259,25 +268,39 @@ void CScribbleDoc::OnPenColor()
 	}
 }
 
+
 void CScribbleDoc::OnCloseDocument()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	CScribbleApp* pApp = (CScribbleApp*)AfxGetApp();
 
-	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,m_nThickWidth);
-	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,m_nThinWidth);
-	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
-	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
-	pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,m_CurBkColor);
+	CString sRegistryName = CString(pApp->m_pszUserSettingSection) + _T("\\") + this->GetDocName();
 
-	//CString sDocName;
-	//this->GetDocTemplate()->GetDocString(sDocName,CDocTemplate::docName);
-	//sDocName = pApp->m_pszUserSettingSection + "\\" + sDocName;
+	pApp->WriteProfileInt(sRegistryName,pApp->m_pszThickPenWidth,m_nThickWidth);
+	pApp->WriteProfileInt(sRegistryName,pApp->m_pszThinPenWidth,m_nThinWidth);
+	pApp->WriteProfileInt(sRegistryName,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
+	pApp->WriteProfileInt(sRegistryName,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
+	pApp->WriteProfileInt(sRegistryName,pApp->m_pszCanvasBkgColor,m_CurBkColor);
 
-	//pApp->WriteProfileInt(sDocName,pApp->m_pszThickPenWidth,m_nThickWidth);
-	//pApp->WriteProfileInt(sDocName,pApp->m_pszThinPenWidth,m_nThinWidth);
-	//pApp->WriteProfileInt(sDocName,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
-	//pApp->WriteProfileInt(sDocName,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
-	//pApp->WriteProfileInt(sDocName,pApp->m_pszCanvasBkgColor,m_CurBkColor);
+	//pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,m_nThickWidth);
+	//pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,m_nThinWidth);
+	//pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
+	//pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
+	//pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszCanvasBkgColor,m_CurBkColor);
+
 	CDocument::OnCloseDocument();
+}
+
+CString CScribbleDoc::GetDocName(CString sCurPathName)
+{
+	CString sDocName;
+	int nTokPos = 0;
+	CString sPathName = (sCurPathName.IsEmpty())? this->GetPathName() : sCurPathName;
+	CString sTok = sPathName.Tokenize(_T("\\"),nTokPos);
+	while (!sTok.IsEmpty())
+	{
+		sDocName = sTok;
+		sTok = sPathName.Tokenize(_T("\\"),nTokPos);
+	}
+	return sDocName;
 }

@@ -70,6 +70,7 @@ public:
 	CScribbleBitmap m_BkImg;
 	bool m_bIsBySetting;
 	COLORREF m_rgbPenCurColor;
+	CString GetDocName(CString sCurPathName = _T(""));
 };
 
 
