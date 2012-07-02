@@ -12,8 +12,6 @@
 #define new DEBUG_NEW
 #endif
 
-#define ABS(x) (x>0)?x:-x
-
 // CScribbleView
 
 IMPLEMENT_DYNCREATE(CScribbleView, CScrollView)
@@ -232,9 +230,10 @@ void CScribbleView::OnLButtonUp(UINT nFlags, CPoint point)
 	dc.DPtoLP(&point);
 
 	//To avoid button up right after button down.
-	if (point.x > GetDocument()->m_nRestrictWidth
-		|| point.y > GetDocument()->m_nRestrictHeight)
+	if ((point.x > GetDocument()->m_nRestrictWidth || point.y > GetDocument()->m_nRestrictHeight)
+	 && (m_ptPrev.x > GetDocument()->m_nRestrictWidth || m_ptPrev.y > GetDocument()->m_nRestrictHeight) )
 	{
+		ReleaseCapture();
 		return;
 	}
 
@@ -396,13 +395,14 @@ void CScribbleView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-	TRACE("<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>\n");
+
 	CDC						memDC;
 	CDC*					pDrawDC = pDC;
 	CBitmap					memBitmap;
 	
 	BITMAP					bmpRef;
 	CBitmap*				pOldBit = NULL;
+
 	CRect					rectClip;
 	pDC->GetClipBox(&rectClip);
 	CRect					rect = rectClip;
@@ -491,8 +491,6 @@ void CScribbleView::OnDraw(CDC* pDC)
 		memDC.SetViewportOrg(0, 0);
 		memDC.SetWindowOrg(0,0);
 		memDC.SetMapMode(MM_TEXT);
-		//TRACE("3 rectClip in Client >> l:%d,t:%d,r:%d,b:%d\n",rect.left, rect.top,rect.right,rect.bottom);
-		//TRACE("3 rectClip in Client >> w:%d,h:%d\n",rect.Width(), rect.Height());
 		pDC->BitBlt(rect.left, rect.top, rect.Width(), rect.Height(),
 			&memDC, 0, 0, SRCCOPY);
 		if(pOldBit)

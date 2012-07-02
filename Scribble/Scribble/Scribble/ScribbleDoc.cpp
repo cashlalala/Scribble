@@ -139,6 +139,7 @@ void CScribbleDoc::Serialize(CArchive& ar)
 		ar << m_nPenWidth;
 		ar << m_bIsBySetting;
 		ar << m_BkImg.m_szFilePath;
+		ar << m_rgbPenCurColor;
 	}
 	else
 	{
@@ -147,6 +148,7 @@ void CScribbleDoc::Serialize(CArchive& ar)
 		ar >> m_nPenWidth;
 		ar >> m_bIsBySetting;
 		ar >> m_BkImg.m_szFilePath;
+		ar >> m_rgbPenCurColor;
 		if (!m_BkImg.m_szFilePath.IsEmpty())
 			m_BkImg.LoadBitMapFromFile();
 	}
