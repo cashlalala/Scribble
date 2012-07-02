@@ -65,9 +65,9 @@ public:
 	afx_msg void OnPenColor();
 	int m_nRestrictWidth;
 	int m_nRestrictHeight;
-	COLORREF m_CurBkColor;
+	COLORREF m_rgbCurBkColor;
 	virtual void OnCloseDocument();
-	CScribbleBitmap m_BkImg;
+	CScribbleBitmap m_bmpBkImg;
 	bool m_bIsBySetting;
 	COLORREF m_rgbPenCurColor;
 	CString GetDocName(CString sCurPathName = _T(""));

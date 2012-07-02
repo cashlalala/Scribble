@@ -38,9 +38,11 @@ CScribbleDoc::CScribbleDoc()
 , m_nRestrictWidth(0)
 , m_nRestrictHeight(0)
 , m_bIsBySetting(false)
+, m_bThickPen(false)
+, m_nThickWidth(2)
+, m_nThinWidth(5)
 {
-	// TODO: 在此加入一次建構程式碼
-
+	m_rgbPenCurColor = m_rgbCurBkColor = RGB(0,0,0);
 }
 
 CScribbleDoc::~CScribbleDoc()
@@ -61,7 +63,7 @@ BOOL CScribbleDoc::OnNewDocument()
 		{
 			m_nRestrictHeight = dlg.m_nCanvHeight;
 			m_nRestrictWidth = dlg.m_nCanvWidth;
-			m_CurBkColor = dlg.m_dwColorToBeSet;
+			m_rgbCurBkColor = dlg.m_dwColorToBeSet;
 			m_bIsBySetting = true;
 		}
 		else
@@ -69,10 +71,10 @@ BOOL CScribbleDoc::OnNewDocument()
 			//HBITMAP hBmp = (HBITMAP)::LoadImage(NULL,dlg.m_szBkImgPath,
 			//									IMAGE_BITMAP,0,0,
 			//									LR_LOADFROMFILE|LR_CREATEDIBSECTION);
-			m_BkImg.LoadBitMapFromFile(dlg.m_szBkImgPath);
+			m_bmpBkImg.LoadBitMapFromFile(dlg.m_szBkImgPath);
 			m_bIsBySetting = false;
-			m_nRestrictHeight = m_BkImg.GetHeightPixel();
-			m_nRestrictWidth = m_BkImg.GetWidthPixel();
+			m_nRestrictHeight = m_bmpBkImg.GetHeightPixel();
+			m_nRestrictWidth = m_bmpBkImg.GetWidthPixel();
 		}
 	}
 	else
@@ -100,7 +102,7 @@ BOOL CScribbleDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	CString sRegistryName = CString(pApp->m_pszUserSettingSection) + _T("\\") + this->GetDocName(lpszPathName);
 
 	m_penCur.CreatePen(PS_SOLID,m_nPenWidth,m_rgbPenCurColor);
-	m_CurBkColor = pApp->GetProfileInt(sRegistryName,pApp->m_pszCanvasBkgColor,0);
+	m_rgbCurBkColor = pApp->GetProfileInt(sRegistryName,pApp->m_pszCanvasBkgColor,0);
 	m_nRestrictHeight = pApp->GetProfileInt(sRegistryName,pApp->m_pszRestrictCanvasHeight,0);
 	m_nRestrictWidth = pApp->GetProfileInt(sRegistryName,pApp->m_pszRestrictCanvasWidth,0);
 	m_nThickWidth = pApp->GetProfileInt(sRegistryName,pApp->m_pszThickPenWidth,0);
@@ -138,7 +140,7 @@ void CScribbleDoc::Serialize(CArchive& ar)
 		ar << m_bThickPen;
 		ar << m_nPenWidth;
 		ar << m_bIsBySetting;
-		ar << m_BkImg.m_szFilePath;
+		ar << m_bmpBkImg.m_szFilePath;
 		ar << m_rgbPenCurColor;
 	}
 	else
@@ -147,10 +149,10 @@ void CScribbleDoc::Serialize(CArchive& ar)
 		ar >> m_bThickPen;
 		ar >> m_nPenWidth;
 		ar >> m_bIsBySetting;
-		ar >> m_BkImg.m_szFilePath;
+		ar >> m_bmpBkImg.m_szFilePath;
 		ar >> m_rgbPenCurColor;
-		if (!m_BkImg.m_szFilePath.IsEmpty())
-			m_BkImg.LoadBitMapFromFile();
+		if (!m_bmpBkImg.m_szFilePath.IsEmpty())
+			m_bmpBkImg.LoadBitMapFromFile();
 	}
 	m_strokeList.Serialize( ar );
 }
@@ -282,7 +284,7 @@ void CScribbleDoc::OnCloseDocument()
 	pApp->WriteProfileInt(sRegistryName,pApp->m_pszThinPenWidth,m_nThinWidth);
 	pApp->WriteProfileInt(sRegistryName,pApp->m_pszRestrictCanvasWidth,m_nRestrictWidth);
 	pApp->WriteProfileInt(sRegistryName,pApp->m_pszRestrictCanvasHeight,m_nRestrictHeight);
-	pApp->WriteProfileInt(sRegistryName,pApp->m_pszCanvasBkgColor,m_CurBkColor);
+	pApp->WriteProfileInt(sRegistryName,pApp->m_pszCanvasBkgColor,m_rgbCurBkColor);
 
 	//pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThickPenWidth,m_nThickWidth);
 	//pApp->WriteProfileInt(pApp->m_pszUserSettingSection,pApp->m_pszThinPenWidth,m_nThinWidth);

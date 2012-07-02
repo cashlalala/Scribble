@@ -31,7 +31,8 @@ END_MESSAGE_MAP()
 
 CScribbleView::CScribbleView()
 {
-	// TODO: 在此加入建構程式碼
+	m_pStrokeCur = NULL;
+	m_ptPrev = CPoint(0,0);
 }
 
 CScribbleView::~CScribbleView()
@@ -286,6 +287,10 @@ void CScribbleView::OnMouseMove(UINT nFlags, CPoint point)
 	// It's necessary to convert the point from device coordinates
 	// to logical coordinates, such as are stored in the document.
 	OnPrepareDC(&dc); // set up mapping mode and viewport origin
+
+	CRect rectInvalid = CRect(0,0, GetDocument()->m_nRestrictWidth, GetDocument()->m_nRestrictHeight);
+	dc.IntersectClipRect(&rectInvalid);
+
 	dc.DPtoLP(&point);
 	
 	m_pStrokeCur->m_pointArray.Add(point);
@@ -302,6 +307,7 @@ void CScribbleView::OnMouseMove(UINT nFlags, CPoint point)
 		dc.MoveTo( point );
 	else
 		dc.MoveTo(m_ptPrev);
+	TRACE("prev point: (%d,%d) \n current point: (%d,%d) \n",m_ptPrev.x,m_ptPrev.y,point.x,point.y);
 
 	if (point.x <= GetDocument()->m_nRestrictWidth && point.y <= GetDocument()->m_nRestrictHeight)
 		dc.LineTo( point );
@@ -443,7 +449,7 @@ void CScribbleView::OnDraw(CDC* pDC)
 			{
 				rcBkCanv.SetRect(0,0,GetDocument()->m_nRestrictWidth,GetDocument()->m_nRestrictHeight);
 				rcBkCanv.InflateRect(1,1);
-				brushBkgd.CreateSolidBrush(GetDocument()->m_CurBkColor);
+				brushBkgd.CreateSolidBrush(GetDocument()->m_rgbCurBkColor);
 				memDC.FillRect(&rcBkCanv,&brushBkgd);
 			}
 			else
@@ -451,8 +457,8 @@ void CScribbleView::OnDraw(CDC* pDC)
 				CDC dcBmp;
 				if (dcBmp.CreateCompatibleDC(pDC))
 				{
-					CBitmap* oldBitmap = dcBmp.SelectObject(&GetDocument()->m_BkImg);					
-					GetDocument()->m_BkImg.GetBitmap(&bmpRef);
+					CBitmap* oldBitmap = dcBmp.SelectObject(&GetDocument()->m_bmpBkImg);					
+					GetDocument()->m_bmpBkImg.GetBitmap(&bmpRef);
 					pDrawDC->BitBlt(0,0, bmpRef.bmWidth, bmpRef.bmHeight, &dcBmp, 0,0, SRCCOPY);
 					rcBkCanv.SetRect(0,0,bmpRef.bmWidth,bmpRef.bmHeight);
 					dcBmp.SelectObject(oldBitmap);
